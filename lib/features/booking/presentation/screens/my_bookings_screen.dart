@@ -191,16 +191,12 @@ class MyBookingsScreen extends ConsumerWidget {
           const SizedBox(height: 16),
           Text(
             message,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: AppColors.textSecondary,
-                ),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 8),
           Text(
             'Book a service to get started',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.textHint,
-                ),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textHint),
           ),
         ],
       ),
@@ -214,9 +210,7 @@ class MyBookingsScreen extends ConsumerWidget {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => BookingDetailScreen(booking: booking),
-            ),
+            MaterialPageRoute(builder: (context) => BookingDetailScreen(booking: booking)),
           );
         },
         borderRadius: BorderRadius.circular(12),
@@ -232,9 +226,7 @@ class MyBookingsScreen extends ConsumerWidget {
                   _buildStatusBadge(booking.status),
                   Text(
                     DateFormat('MMM dd, yyyy').format(booking.bookingDate),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -262,16 +254,12 @@ class MyBookingsScreen extends ConsumerWidget {
                       children: [
                         Text(
                           booking.service.name,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           booking.service.provider,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.textSecondary,
-                              ),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                         ),
                       ],
                     ),
@@ -365,7 +353,9 @@ class MyBookingsScreen extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 16, color: color),
+
           const SizedBox(width: 4),
+
           Text(
             status.name.toUpperCase(),
             style: TextStyle(
@@ -384,9 +374,7 @@ class MyBookingsScreen extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cancel Booking'),
-        content: const Text(
-          'Are you sure you want to cancel this booking? This action cannot be undone.',
-        ),
+        content: const Text('Are you sure you want to cancel this booking? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

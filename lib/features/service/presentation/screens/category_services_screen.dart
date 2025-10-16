@@ -16,14 +16,10 @@ class CategoryServicesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Filter services by category
-    final filteredServices = mockServices
-        .where((service) => service.category == categoryName)
-        .toList();
+    final filteredServices = mockServices.where((service) => service.category == categoryName).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(categoryName),
-      ),
+      appBar: AppBar(title: Text(categoryName)),
       body: filteredServices.isEmpty
           ? Center(
               child: Column(
@@ -42,9 +38,7 @@ class CategoryServicesScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     'Check back later for new services',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -80,22 +74,12 @@ class CategoryServicesScreen extends StatelessWidget {
                           children: [
                             Text(
                               categoryName,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleLarge
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               '${filteredServices.length} services available',
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
-                                  ?.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
                             ),
                           ],
                         ),
@@ -154,39 +138,23 @@ class CategoryServicesScreen extends StatelessWidget {
                                   const SizedBox(height: 4),
                                   Text(
                                     service.provider,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
-                                        ?.copyWith(
-                                          color: AppColors.textSecondary,
-                                        ),
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                                   ),
                                   const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      const Icon(
-                                        Icons.star,
-                                        size: 16,
-                                        color: Colors.amber,
-                                      ),
+                                      const Icon(Icons.star,size: 16,color: Colors.amber),
                                       const SizedBox(width: 4),
                                       Text(
                                         service.rating.toString(),
-                                        style:
-                                            Theme.of(context).textTheme.bodySmall,
+                                        style: Theme.of(context).textTheme.bodySmall,
                                       ),
                                     ],
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
                                     'Rp ${service.price.toStringAsFixed(0)}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          color: AppColors.primary,
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                    style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.primary,fontWeight: FontWeight.bold),
                                   ),
                                 ],
                               ),
@@ -196,9 +164,7 @@ class CategoryServicesScreen extends StatelessWidget {
                               icon: const Icon(Icons.favorite_border),
                               onPressed: () {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                      content: Text('Added to favorites')),
-                                );
+                                  const SnackBar(content: Text('Added to favorites')));
                               },
                             ),
                           ],

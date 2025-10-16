@@ -1,7 +1,7 @@
 import 'package:booking_app/features/auth/data/provider/auth_provider.dart';
 import 'package:booking_app/features/booking/presentation/screens/my_bookings_screen.dart';
 import 'package:booking_app/features/service/presentation/screens/service_detail_screen.dart';
-import 'package:booking_app/features/services/presentation/screens/category_services_screen.dart';
+import 'package:booking_app/features/service/presentation/screens/category_services_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -113,7 +113,7 @@ class OrigHomeScreen extends ConsumerWidget {
       MyBookingsScreen(),
       const ProfileTabContent(),
     ];
-
+    // navbar with 4 tabs: Home, Search, Bookings, Profile
     return Scaffold(
       body: pages[selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -167,13 +167,12 @@ class HomeTabContent extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Notifications - Coming soon')),
-              );
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Notifications - Coming soon')));
             },
           ),
         ],
       ),
+      
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -187,18 +186,15 @@ class HomeTabContent extends ConsumerWidget {
                 children: [
                   Text(
                     'Hello, ${user?.name?.split(' ').first ?? 'User'}! 👋',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'What service do you need today?',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
                   ),
                   const SizedBox(height: 16),
+
                   // Search Bar
                   TextField(
                     readOnly: true,
@@ -223,16 +219,16 @@ class HomeTabContent extends ConsumerWidget {
             const SizedBox(height: 20),
 
             // Categories Section
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
                 'Categories',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 12),
+
             SizedBox(
               height: 100,
               child: ListView.builder(
@@ -262,10 +258,7 @@ class HomeTabContent extends ConsumerWidget {
                           Container(
                             height: 60,
                             width: 60,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
+                            decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.1),borderRadius: BorderRadius.circular(12)),
                             child: Icon(
                               category['icon'],
                               color: AppColors.primary,
@@ -298,9 +291,7 @@ class HomeTabContent extends ConsumerWidget {
                 children: [
                   Text(
                     'Popular Services',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   TextButton(
                     onPressed: () {
@@ -338,21 +329,21 @@ class HomeTabContent extends ConsumerWidget {
                       padding: const EdgeInsets.all(12),
                       child: Row(
                         children: [
+
                           // Service Image
                           Container(
                             width: 80,
                             height: 80,
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                            decoration: BoxDecoration(color: Colors.grey[300],borderRadius: BorderRadius.circular(8)),
                             child: Icon(
                               Icons.image,
                               size: 40,
                               color: Colors.grey[400],
                             ),
                           ),
+
                           const SizedBox(width: 12),
+
                           // Service Info
                           Expanded(
                             child: Column(
@@ -360,18 +351,18 @@ class HomeTabContent extends ConsumerWidget {
                               children: [
                                 Text(
                                   service.name,
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                                 ),
+
                                 const SizedBox(height: 4),
+
                                 Text(
                                   service.provider,
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                                 ),
+
                                 const SizedBox(height: 4),
+
                                 Row(
                                   children: [
                                     const Icon(
@@ -386,32 +377,25 @@ class HomeTabContent extends ConsumerWidget {
                                     ),
                                     const SizedBox(width: 8),
                                     Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 2,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primary.withOpacity(0.1),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
+                                      padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 2),
+
+                                      decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.1),borderRadius: BorderRadius.circular(4)),
+
                                       child: Text(
                                         service.category,
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: AppColors.primary,
-                                          fontSize: 10,
-                                        ),
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.primary,fontSize: 10),
                                       ),
                                     ),
                                   ],
                                 ),
+
                                 const SizedBox(height: 8),
+
                                 Text(
                                   'Rp ${service.price.toStringAsFixed(0)}',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    color: AppColors.primary,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.primary,fontWeight: FontWeight.bold),
                                 ),
+                                
                               ],
                             ),
                           ),
@@ -419,9 +403,7 @@ class HomeTabContent extends ConsumerWidget {
                           IconButton(
                             icon: const Icon(Icons.favorite_border),
                             onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Added to favorites')),
-                              );
+                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Added to favorites')));
                             },
                           ),
                         ],
@@ -477,45 +459,6 @@ class SearchTabContent extends StatelessWidget {
     );
   }
 }
-
-// Bookings Tab Content (Placeholder)
-class BookingsTabContent extends StatelessWidget {
-  const BookingsTabContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Bookings'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.calendar_today,
-              size: 100,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'My Bookings',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Coming soon',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 // Profile Tab Content (Placeholder)
 class ProfileTabContent extends ConsumerWidget {
   const ProfileTabContent({super.key});
