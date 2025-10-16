@@ -1,5 +1,6 @@
 import 'package:booking_app/features/auth/data/provider/auth_provider.dart';
 import 'package:booking_app/features/booking/presentation/screens/my_bookings_screen.dart';
+import 'package:booking_app/features/search/presentation/screens/search_screen.dart';
 import 'package:booking_app/features/service/presentation/screens/service_detail_screen.dart';
 import 'package:booking_app/features/service/presentation/screens/category_services_screen.dart';
 import 'package:flutter/material.dart';
@@ -109,7 +110,7 @@ class OrigHomeScreen extends ConsumerWidget {
     // List of pages for each tab
     final List<Widget> pages = [
       const HomeTabContent(),
-      const SearchTabContent(),
+      SearchScreen(),
       MyBookingsScreen(),
       const ProfileTabContent(),
     ];
@@ -422,43 +423,6 @@ class HomeTabContent extends ConsumerWidget {
   }
 }
 
-// Search Tab Content (Placeholder)
-class SearchTabContent extends StatelessWidget {
-  const SearchTabContent({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Search'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.search,
-              size: 100,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Search Page',
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Coming soon',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 // Profile Tab Content (Placeholder)
 class ProfileTabContent extends ConsumerWidget {
   const ProfileTabContent({super.key});

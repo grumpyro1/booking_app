@@ -1,5 +1,5 @@
 import 'package:booking_app/features/booking/data/models/booking_model.dart';
-import 'package:booking_app/features/booking/presentation/provider/bookings_provider.dart';
+import 'package:booking_app/features/booking/data/provider/bookings_provider.dart';
 import 'package:booking_app/features/home/presentation/screens/orig_home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

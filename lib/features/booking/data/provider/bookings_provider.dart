@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import '../../data/models/booking_model.dart';
-import '../../data/repositories/bookings_repository.dart';
+import '../models/booking_model.dart';
+import '../repositories/bookings_repository.dart';
 
 // Repository provider
 final bookingsRepositoryProvider = Provider((ref) {

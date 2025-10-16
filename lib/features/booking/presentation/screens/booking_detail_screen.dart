@@ -1,4 +1,4 @@
-import 'package:booking_app/features/booking/presentation/provider/bookings_provider.dart';
+import 'package:booking_app/features/booking/data/provider/bookings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
