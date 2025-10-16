@@ -1,5 +1,6 @@
 import 'package:booking_app/features/booking/presentation/screens/confirmation_screen.dart';
 import 'package:booking_app/features/home/presentation/screens/orig_home_screen.dart';
+import 'package:booking_app/shared/widgets/button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -337,24 +338,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
               const SizedBox(height: 16),
               // Confirm Button
-              ElevatedButton(
-                onPressed: _isProcessing ? null : _processBooking,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: _isProcessing
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text(
-                        'Confirm & Pay',
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
+              SizedBox(
+                width: double.infinity,
+                child: ButtonWidget(label: 'Confirm & Pay', onPressed: _isProcessing ? null : () => _processBooking()),
               ),
             ],
           ),

@@ -19,10 +19,10 @@ class SplashScreen extends StatelessWidget {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: const Icon(
-                Icons.spa,
-                size: 80,
-                color: AppColors.primary,
+              child: Image.asset('assets/images/logo.png',
+                height: 120,
+                width: 120,
+                fit: BoxFit.contain,
               ),
             ),
             
@@ -30,7 +30,7 @@ class SplashScreen extends StatelessWidget {
             
             // App Name
             const Text(
-              'Bali Services',
+              'SerbisyoKo',
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,

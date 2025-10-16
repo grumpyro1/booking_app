@@ -31,24 +31,39 @@ class LoginScreen extends ConsumerWidget {
               
               // Logo or App Icon
               Container(
-                height: 120,
-                width: 120,
-                alignment: Alignment.center,
-                child: Icon(Icons.spa,size: 80,color: AppColors.primary),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white30,
+                  border: Border.all(color: Colors.white70, width: 2), // subtle border
+                ),
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  height: 120,
+                  width: 120,
+                  fit: BoxFit.contain,
+                ),
               ),
+
+              // Container(
+              //   height: 120,
+              //   width: 120,
+              //   alignment: Alignment.center,
+              //   child: Icon(Icons.spa,size: 80,color: AppColors.primary),
+              // ),
               
               const SizedBox(height: 24),
               
               // Welcome text
               Text(
-                'Title here',
+                'SerbisyoKo',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold,color: AppColors.textPrimary),
                 textAlign: TextAlign.center,
               ),
               
               const SizedBox(height: 8),
               
-              // Text('Sign in to continue to Wybr Services',
+              // Text('Sign in to continue to SerbisyoKo Services',
               //   style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
               //   textAlign: TextAlign.center,
               // ),

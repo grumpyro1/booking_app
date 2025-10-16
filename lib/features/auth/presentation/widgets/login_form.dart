@@ -1,4 +1,5 @@
 import 'package:booking_app/features/auth/data/provider/auth_provider.dart';
+import 'package:booking_app/shared/widgets/button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -131,19 +132,11 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           const SizedBox(height: 24),
           
           // Login button
-          ElevatedButton(
+          ButtonWidget(
+            label: 'Login',
             onPressed: widget.isLoading ? null : _handleLogin,
-            child: widget.isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Text('Login'),
-          ),
+            isLoading: widget.isLoading,
+          )
         ],
       ),
     );

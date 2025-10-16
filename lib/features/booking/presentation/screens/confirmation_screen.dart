@@ -1,6 +1,7 @@
 import 'package:booking_app/features/booking/data/models/booking_model.dart';
 import 'package:booking_app/features/booking/data/provider/bookings_provider.dart';
 import 'package:booking_app/features/home/presentation/screens/orig_home_screen.dart';
+import 'package:booking_app/shared/widgets/button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -251,40 +252,27 @@ class ConfirmationScreen extends ConsumerWidget {
               Column(
                 children: [
                   // View Bookings Button
-                  ElevatedButton(
+                  ButtonWidget(
+                    label: 'View My Bookings',
                     onPressed: () {
-                      // Navigate to bookings tab
                       ref.read(selectedIndexProvider.notifier).state = 2;
                       Navigator.of(context).popUntil((route) => route.isFirst);
                     },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                    ),
-                    child: const Text(
-                      'View My Bookings',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
                   ),
                   const SizedBox(height: 12),
-                  
+
                   // Back to Home Button
-                  OutlinedButton(
+                  ButtonWidget(
+                    label: 'Back to Home',
                     onPressed: () {
-                      // Navigate back to home
                       ref.read(selectedIndexProvider.notifier).state = 0;
                       Navigator.of(context).popUntil((route) => route.isFirst);
                     },
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: const BorderSide(color: AppColors.primary),
-                    ),
-                    child: const Text(
-                      'Back to Home',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
+                    isOutlined: true,
                   ),
                 ],
               ),
+
             ],
           ),
         ),

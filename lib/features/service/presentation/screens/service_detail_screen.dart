@@ -1,5 +1,6 @@
 import 'package:booking_app/features/booking/presentation/screens/booking_screen.dart';
 import 'package:booking_app/features/home/presentation/screens/orig_home_screen.dart';
+import 'package:booking_app/shared/widgets/button_widget.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 
@@ -203,8 +204,9 @@ class ServiceDetailScreen extends StatelessWidget {
           ],
         ),
         child: SafeArea(
-          child: ElevatedButton(
-            onPressed: () {
+          
+          child: ButtonWidget(
+            label: "Book Now", onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -212,9 +214,7 @@ class ServiceDetailScreen extends StatelessWidget {
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-            child: const Text('Book Now',style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          ),
+          )
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:booking_app/features/booking/presentation/screens/checkout_screen.dart';
 import 'package:booking_app/features/home/presentation/screens/orig_home_screen.dart';
+import 'package:booking_app/shared/widgets/button_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -353,15 +354,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                   ),
                 ),
               // Continue Button
-              ElevatedButton(
-                onPressed: _proceedToCheckout,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text(
-                  'Checkout',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
+              SizedBox(
+                width: double.infinity,
+                child: ButtonWidget(label: 'Checkout', onPressed: _proceedToCheckout)
               ),
             ],
           ),

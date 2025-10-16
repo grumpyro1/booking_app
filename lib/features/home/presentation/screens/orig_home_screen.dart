@@ -1,8 +1,8 @@
 import 'package:booking_app/features/auth/data/provider/auth_provider.dart';
 import 'package:booking_app/features/booking/presentation/screens/my_bookings_screen.dart';
 import 'package:booking_app/features/search/presentation/screens/search_screen.dart';
-import 'package:booking_app/features/service/presentation/screens/service_detail_screen.dart';
 import 'package:booking_app/features/service/presentation/screens/category_services_screen.dart';
+import 'package:booking_app/shared/widgets/service_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -163,7 +163,7 @@ class HomeTabContent extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Wybr'),
+        title: const Text('SerbisyoKo'),
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_outlined),
@@ -314,104 +314,7 @@ class HomeTabContent extends ConsumerWidget {
               itemCount: mockServices.length,
               itemBuilder: (context, index) {
                 final service = mockServices[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ServiceDetailScreen(service: service),
-                        ),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(12),
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Row(
-                        children: [
-
-                          // Service Image
-                          Container(
-                            width: 80,
-                            height: 80,
-                            decoration: BoxDecoration(color: Colors.grey[300],borderRadius: BorderRadius.circular(8)),
-                            child: Icon(
-                              Icons.image,
-                              size: 40,
-                              color: Colors.grey[400],
-                            ),
-                          ),
-
-                          const SizedBox(width: 12),
-
-                          // Service Info
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  service.name,
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                                ),
-
-                                const SizedBox(height: 4),
-
-                                Text(
-                                  service.provider,
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
-                                ),
-
-                                const SizedBox(height: 4),
-
-                                Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.star,
-                                      size: 16,
-                                      color: Colors.amber,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      service.rating.toString(),
-                                      style: Theme.of(context).textTheme.bodySmall,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8,vertical: 2),
-
-                                      decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.1),borderRadius: BorderRadius.circular(4)),
-
-                                      child: Text(
-                                        service.category,
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.primary,fontSize: 10),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                const SizedBox(height: 8),
-
-                                Text(
-                                  'Rp ${service.price.toStringAsFixed(0)}',
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.primary,fontWeight: FontWeight.bold),
-                                ),
-                                
-                              ],
-                            ),
-                          ),
-                          // Favorite Button
-                          IconButton(
-                            icon: const Icon(Icons.favorite_border),
-                            onPressed: () {
-                              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Added to favorites')));
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
+                return ServiceCardWidget(service: service);
               },
             ),
 
