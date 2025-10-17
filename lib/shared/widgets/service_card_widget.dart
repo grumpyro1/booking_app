@@ -14,6 +14,12 @@ class ServiceCardWidget extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       child: InkWell(
+        // onTap: () => Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (_) => ServiceDetailScreen(service: service),
+        //   ),
+        // ),
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(

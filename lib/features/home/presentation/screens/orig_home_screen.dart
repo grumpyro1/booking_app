@@ -1,13 +1,12 @@
 import 'package:booking_app/features/auth/data/provider/auth_provider.dart';
 import 'package:booking_app/features/booking/presentation/screens/my_bookings_screen.dart';
-import 'package:booking_app/features/favorites/presentation/favorites_screen.dart';
 import 'package:booking_app/features/profile/presentation/screens/profile_screen.dart';
 import 'package:booking_app/features/search/presentation/screens/search_screen.dart';
-import 'package:booking_app/features/service/presentation/screens/category_services_screen.dart';
 import 'package:booking_app/shared/widgets/service_card_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 
 // Dummy service data
@@ -246,15 +245,21 @@ class HomeTabContent extends ConsumerWidget {
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     child: InkWell(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CategoryServicesScreen(
-                              categoryName: category['name'],
-                              categoryIcon: category['icon'],
-                            ),
-                          ),
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(
+                        //     builder: (context) => CategoryServicesScreen(
+                        //       categoryName: category['name'],
+                        //       categoryIcon: category['icon'],
+                        //     ),
+                        //   ),
+                        // );
+                        context.go(
+                          '/category/${Uri.encodeComponent(category['name'])}?icon=${(category['icon'] as IconData).codePoint}',
                         );
+                        // context.push(
+                        //   '/category/${Uri.encodeComponent(category['name'])}?icon=${(category['icon'] as IconData).codePoint}',
+                        // );
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Column(

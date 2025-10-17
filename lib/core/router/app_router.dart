@@ -1,4 +1,6 @@
 import 'package:booking_app/features/auth/data/provider/auth_provider.dart';
+import 'package:booking_app/features/service/presentation/screens/category_services_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
@@ -81,6 +83,21 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/home',
         builder: (context, state) => const OrigHomeScreen(),
+      ),
+
+      // Category Services
+      GoRoute(
+        path: '/category/:categoryName',
+        builder: (context, state) {
+          final categoryName = state.pathParameters['categoryName']!;
+          final iconCodePoint = state.uri.queryParameters['icon'];
+          return CategoryServicesScreen(
+            categoryName: categoryName,
+            categoryIcon: iconCodePoint != null 
+                ? IconData(int.parse(iconCodePoint), fontFamily: 'MaterialIcons')
+                : Icons.category,
+          );
+        },
       ),
     ],
   );
