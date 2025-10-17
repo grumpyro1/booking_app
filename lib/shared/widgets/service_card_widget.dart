@@ -1,5 +1,6 @@
 import 'package:booking_app/features/home/presentation/screens/orig_home_screen.dart';
 import 'package:booking_app/features/service/presentation/screens/service_detail_screen.dart';
+import 'package:booking_app/shared/widgets/favorite_button.dart';
 import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';
 
@@ -79,11 +80,9 @@ class ServiceCardWidget extends StatelessWidget {
                   ],
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.favorite_border),
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Added to favorites')),
-                ),
+              FavoriteButton(
+                serviceId: service.id,
+                serviceName: service.name,
               ),
             ],
           ),

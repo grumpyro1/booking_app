@@ -1,6 +1,7 @@
 import 'package:booking_app/features/booking/presentation/screens/booking_screen.dart';
 import 'package:booking_app/features/home/presentation/screens/orig_home_screen.dart';
 import 'package:booking_app/shared/widgets/button_widget.dart';
+import 'package:booking_app/shared/widgets/favorite_button.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 
@@ -15,6 +16,15 @@ class ServiceDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // appBar: AppBar(
+      //   title: const Text('Service Details'),
+      //   actions: [
+      //     FavoriteButton(
+      //       serviceId: service.id,
+      //       serviceName: service.name,
+      //     ),
+      //   ],
+      // ),
       body: CustomScrollView(
         slivers: [
 
