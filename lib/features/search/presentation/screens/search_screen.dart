@@ -78,8 +78,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     icon: Icons.category,
                     label: selectedCategory ?? 'Category',
                     isActive: selectedCategory != null,
-                    onTap: () =>
-                        showCategoryFilter(context, ref, selectedCategory),
+                    onTap: () => showCategoryFilter(context, ref, selectedCategory),
                   ),
                   const SizedBox(width: 8),
                   FilterChipWidget(
