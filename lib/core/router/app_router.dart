@@ -1,86 +1,81 @@
 import 'package:booking_app/features/auth/data/provider/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../features/auth/data/provider/auth_provider.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
-import '../../features/splash/presentation/screens/splash_screen.dart';
-import '../../features/home/presentation/screens/orig_home_screen.dart';
+import '../../features/auth/presentation/screens/register_screen.dart';
+import '../../features/home/presentation/screens/new_home_screen.dart';
+import '../../features/cart/presentation/screens/all_carts_screen.dart';
+import '../../features/cart/presentation/screens/single_cart_screen.dart';
+import '../../features/booking/presentation/screens/booking_confirmation_screen.dart';
+import '../../features/booking/presentation/screens/booking_success_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
 
   return GoRouter(
-    initialLocation: '/splash',
-    // redirect: (context, state) {
-    //   final isLoggedIn = authState.isLoggedIn;
-    //   final isLoading = authState.isLoading;
-      
-    //   final isSplash = state.matchedLocation == '/splash';
-    //   final isAuth = state.matchedLocation == '/login' || 
-    //                  state.matchedLocation == '/register';
-
-    //   // Wait for auth check to complete
-    //   if (isLoading && isSplash) {
-    //     return '/splash';
-    //   }
-
-    //   // Redirect to login if not authenticated
-    //   if (!isLoggedIn && !isAuth && !isSplash) {
-    //     return '/login';
-    //   }
-
-    //   // Redirect to home if already logged in
-    //   if (isLoggedIn && (isAuth || isSplash)) {
-    //     return '/home';
-    //   }
-
-    //   return null;
-    // },
+    initialLocation: authState.isLoggedIn ? '/home' : '/login',
     redirect: (context, state) {
       final isLoggedIn = authState.isLoggedIn;
-      final isLoading = authState.isLoading;
-      
-      final isSplash = state.matchedLocation == '/splash';
-      final isAuth = state.matchedLocation == '/login' || 
-                    state.matchedLocation == '/register';
+      final isLoggingIn = state.matchedLocation == '/login';
+      final isRegistering = state.matchedLocation == '/register';
 
-      // If still checking auth, stay on splash
-        if (isLoading) {
-          return null; // Stay where you are
-        }
+      // Redirect to login if not logged in and not on auth pages
+      if (!isLoggedIn && !isLoggingIn && !isRegistering) {
+        return '/login';
+      }
 
-        // If on splash and done loading, redirect based on login status
-        if (isSplash) {
-          return isLoggedIn ? '/home' : '/login';
-        }
+      // Redirect to home if logged in and on auth pages
+      if (isLoggedIn && (isLoggingIn || isRegistering)) {
+        return '/home';
+      }
 
-        // If logged in and on auth pages, go to home
-        if (isLoggedIn && isAuth) {
-          return '/home';
-        }
-
-        // If not logged in and trying to access protected pages
-        if (!isLoggedIn && !isAuth) {
-          return '/login';
-        }
-
-        return null; // No redirect needed
+      return null;
     },
     routes: [
-      GoRoute(
-        path: '/splash',
-        builder: (context, state) => const SplashScreen(),
-      ),
+      // Auth Routes
       GoRoute(
         path: '/login',
         builder: (context, state) => const LoginScreen(),
       ),
-      // GoRoute(
-      //   path: '/register',
-      //   builder: (context, state) => const RegisterScreen(),
-      // ),
+      GoRoute(
+        path: '/register',
+        builder: (context, state) => const RegisterScreen(),
+      ),
+
+      // Main Routes
       GoRoute(
         path: '/home',
-        builder: (context, state) => const OrigHomeScreen(),
+        builder: (context, state) => const NewHomeScreen(),
+      ),
+
+      // Cart Routes
+      GoRoute(
+        path: '/all-carts',
+        builder: (context, state) => const AllCartsScreen(),
+      ),
+      GoRoute(
+        path: '/single-cart',
+        builder: (context, state) {
+          final providerId = state.extra as String;
+          return SingleCartScreen(providerId: providerId);
+        },
+      ),
+
+      // Booking Routes
+      GoRoute(
+        path: '/booking-confirmation',
+        builder: (context, state) {
+          final providerId = state.extra as String;
+          return BookingConfirmationScreen(providerId: providerId);
+        },
+      ),
+      GoRoute(
+        path: '/booking-success',
+        builder: (context, state) {
+          final bookingId = state.extra as String;
+          return BookingSuccessScreen(bookingId: bookingId);
+        },
       ),
     ],
   );

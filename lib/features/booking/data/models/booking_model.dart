@@ -1,40 +1,148 @@
-import 'package:booking_app/features/home/presentation/screens/orig_home_screen.dart';
+// lib/features/booking/data/models/booking_model.dart
 
+import 'package:booking_app/features/home/data/models/service_model.dart';
+
+import '../../../cart/data/models/cart_model.dart';
 
 enum BookingStatus {
-  pending,
-  confirmed,
-  completed,
-  cancelled,
+  pending,    // Waiting for provider to accept
+  accepted,   // Provider accepted, scheduled
+  inProgress, // Service is being performed
+  completed,  // Service completed
+  cancelled,  // Booking cancelled
 }
 
 class BookingModel {
   final String id;
-  final Service service;
-  final DateTime bookingDate;
-  final String timeSlot;
-  final double totalAmount;
+  final String userId;
+  final String providerId;
+  final String providerName;
+  final List<CartItemModel> services;
+  final double subtotal;
+  final double serviceFee;
+  final double total;
+  final String serviceAddress;
+  final DateTime scheduledDate;
+  final String scheduledTime;
   final BookingStatus status;
-  final String? notes;
   final DateTime createdAt;
+  final String? notes;
+  final String? cancellationReason;
 
   BookingModel({
     required this.id,
-    required this.service,
-    required this.bookingDate,
-    required this.timeSlot,
-    required this.totalAmount,
+    required this.userId,
+    required this.providerId,
+    required this.providerName,
+    required this.services,
+    required this.subtotal,
+    required this.serviceFee,
+    required this.total,
+    required this.serviceAddress,
+    required this.scheduledDate,
+    required this.scheduledTime,
     required this.status,
-    this.notes,
     required this.createdAt,
+    this.notes,
+    this.cancellationReason,
   });
+
+  factory BookingModel.fromJson(Map<String, dynamic> json) {
+    return BookingModel(
+      id: json['id'] as String,
+      userId: json['userId'] as String,
+      providerId: json['providerId'] as String,
+      providerName: json['providerName'] as String,
+      services: (json['services'] as List)
+          .map((item) => CartItemModel(
+                service: ServiceModel.fromJson(item['service']),
+                quantity: item['quantity'] as int,
+              ))
+          .toList(),
+      subtotal: (json['subtotal'] as num).toDouble(),
+      serviceFee: (json['serviceFee'] as num).toDouble(),
+      total: (json['total'] as num).toDouble(),
+      serviceAddress: json['serviceAddress'] as String,
+      scheduledDate: DateTime.parse(json['scheduledDate'] as String),
+      scheduledTime: json['scheduledTime'] as String,
+      status: BookingStatus.values.firstWhere(
+        (e) => e.toString() == 'BookingStatus.${json['status']}',
+      ),
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      notes: json['notes'] as String?,
+      cancellationReason: json['cancellationReason'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'providerId': providerId,
+      'providerName': providerName,
+      'services': services
+          .map((item) => {
+                'service': item.service.toJson(),
+                'quantity': item.quantity,
+              })
+          .toList(),
+      'subtotal': subtotal,
+      'serviceFee': serviceFee,
+      'total': total,
+      'serviceAddress': serviceAddress,
+      'scheduledDate': scheduledDate.toIso8601String(),
+      'scheduledTime': scheduledTime,
+      'status': status.toString().split('.').last,
+      'createdAt': createdAt.toIso8601String(),
+      'notes': notes,
+      'cancellationReason': cancellationReason,
+    };
+  }
+
+  BookingModel copyWith({
+    String? id,
+    String? userId,
+    String? providerId,
+    String? providerName,
+    List<CartItemModel>? services,
+    double? subtotal,
+    double? serviceFee,
+    double? total,
+    String? serviceAddress,
+    DateTime? scheduledDate,
+    String? scheduledTime,
+    BookingStatus? status,
+    DateTime? createdAt,
+    String? notes,
+    String? cancellationReason,
+  }) {
+    return BookingModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      providerId: providerId ?? this.providerId,
+      providerName: providerName ?? this.providerName,
+      services: services ?? this.services,
+      subtotal: subtotal ?? this.subtotal,
+      serviceFee: serviceFee ?? this.serviceFee,
+      total: total ?? this.total,
+      serviceAddress: serviceAddress ?? this.serviceAddress,
+      scheduledDate: scheduledDate ?? this.scheduledDate,
+      scheduledTime: scheduledTime ?? this.scheduledTime,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      notes: notes ?? this.notes,
+      cancellationReason: cancellationReason ?? this.cancellationReason,
+    );
+  }
 
   String get statusText {
     switch (status) {
       case BookingStatus.pending:
-        return 'Pending';
-      case BookingStatus.confirmed:
+        return 'Pending Confirmation';
+      case BookingStatus.accepted:
         return 'Confirmed';
+      case BookingStatus.inProgress:
+        return 'In Progress';
       case BookingStatus.completed:
         return 'Completed';
       case BookingStatus.cancelled:
@@ -42,6 +150,12 @@ class BookingModel {
     }
   }
 
-  bool get canCancel => status == BookingStatus.pending || status == BookingStatus.confirmed;
-  bool get isUpcoming => status == BookingStatus.confirmed || status == BookingStatus.pending;
+  String get formattedDate {
+    final months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+    return '${months[scheduledDate.month - 1]} ${scheduledDate.day}, ${scheduledDate.year}';
+  }
 }
+
