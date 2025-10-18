@@ -4,7 +4,6 @@ import 'package:booking_app/features/provider/presentation/screens/provider_deta
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import 'package:go_router/go_router.dart';
 import '../../../../core/constants/mock_providers_data.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/data/provider/auth_provider.dart';
@@ -82,8 +81,7 @@ class HomeTabContent extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.shopping_cart_outlined),
                 onPressed: () {
-                  // Navigator.pushNamed(context, '/all-carts');
-                  context.push('/all-carts');
+                  Navigator.pushNamed(context, '/all-carts');
                 },
               ),
               if (totalCarts > 0)
@@ -170,14 +168,80 @@ class HomeTabContent extends ConsumerWidget {
 
             const SizedBox(height: 20),
 
-            // Service Providers Section
+            // Categories Section (Horizontal Row)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'Categories',
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            SizedBox(
+              height: 100,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: mockProviders.length,
+                itemBuilder: (context, index) {
+                  final provider = mockProviders[index];
+                  return Container(
+                    width: 90,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ProviderDetailScreen(provider: provider),
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(12),
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 60,
+                            width: 60,
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Icon(
+                              _getCategoryIcon(provider.category),
+                              color: AppColors.primary,
+                              size: 30,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            provider.category.replaceAll(' Services', ''),
+                            style: Theme.of(context).textTheme.bodySmall,
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            const SizedBox(height: 24),
+
+            // Popular Providers Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Service Providers',
+                    'Popular Providers',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -320,8 +384,17 @@ class HomeTabContent extends ConsumerWidget {
         return Icons.plumbing;
       case 'Electrical Services':
         return Icons.electrical_services;
+      case 'Car Services':
+        return Icons.directions_car;
+      case 'Appliance Services':
+        return Icons.kitchen;
+      case 'Construction Services':
+        return Icons.construction;
+      case 'IT Services':
+        return Icons.computer;
       default:
         return Icons.build;
     }
   }
+
 }

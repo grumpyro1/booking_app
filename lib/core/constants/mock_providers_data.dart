@@ -5,6 +5,7 @@ import 'package:booking_app/features/home/data/models/service_provider_model.dar
 
 // Mock Service Providers
 final List<ServiceProviderModel> mockProviders = [
+  // Aircon
   ServiceProviderModel(
     id: 'provider_1',
     name: 'Cool Tech Services',
@@ -18,6 +19,8 @@ final List<ServiceProviderModel> mockProviders = [
     isAvailable: true,
     serviceTypes: ['Cleaning', 'Maintenance', 'Installation'],
   ),
+
+  // Plumbing
   ServiceProviderModel(
     id: 'provider_2',
     name: 'Fix Flow Plumbing',
@@ -31,6 +34,8 @@ final List<ServiceProviderModel> mockProviders = [
     isAvailable: true,
     serviceTypes: ['Leak Repair', 'Installation', 'Drainage'],
   ),
+
+  // Electrical
   ServiceProviderModel(
     id: 'provider_3',
     name: 'Bright Electric',
@@ -43,6 +48,66 @@ final List<ServiceProviderModel> mockProviders = [
     phone: '+63 934 567 8901',
     isAvailable: true,
     serviceTypes: ['Wiring', 'Repair', 'Lighting'],
+  ),
+
+  // Car
+  ServiceProviderModel(
+    id: 'provider_4',
+    name: 'AutoCare Garage',
+    description: 'Complete car maintenance and repair services',
+    category: 'Car Services',
+    imageUrl: 'https://via.placeholder.com/150',
+    rating: 4.5,
+    reviewCount: 210,
+    address: 'Lanang, Davao City',
+    phone: '+63 935 678 9012',
+    isAvailable: true,
+    serviceTypes: ['Oil Change', 'Tire Replacement', 'Engine Tune-Up'],
+  ),
+
+  // Appliance
+  ServiceProviderModel(
+    id: 'provider_5',
+    name: 'Appliance Fix Pro',
+    description: 'Reliable appliance repair for all major brands',
+    category: 'Appliance Services',
+    imageUrl: 'https://via.placeholder.com/150',
+    rating: 4.6,
+    reviewCount: 175,
+    address: 'Buhangin, Davao City',
+    phone: '+63 936 789 0123',
+    isAvailable: true,
+    serviceTypes: ['Refrigerator Repair', 'Washing Machine Repair', 'Aircon Repair'],
+  ),
+
+  // Construction
+  ServiceProviderModel(
+    id: 'provider_6',
+    name: 'BuildRight Construction',
+    description: 'Quality construction and renovation services',
+    category: 'Construction Services',
+    imageUrl: 'https://via.placeholder.com/150',
+    rating: 4.9,
+    reviewCount: 320,
+    address: 'Ecoland, Davao City',
+    phone: '+63 937 890 1234',
+    isAvailable: true,
+    serviceTypes: ['House Renovation', 'Roofing', 'Painting'],
+  ),
+
+  // IT
+  ServiceProviderModel(
+    id: 'provider_7',
+    name: 'TechFix IT Solutions',
+    description: 'Professional IT support and computer repair',
+    category: 'IT Services',
+    imageUrl: 'https://via.placeholder.com/150',
+    rating: 4.8,
+    reviewCount: 198,
+    address: 'Downtown, Davao City',
+    phone: '+63 938 901 2345',
+    isAvailable: true,
+    serviceTypes: ['Computer Repair', 'Network Setup', 'Data Recovery'],
   ),
 ];
 
@@ -82,7 +147,7 @@ final List<ServiceModel> mockServices = [
     category: 'Aircon Services',
     isAvailable: true,
   ),
-  
+
   // Fix Flow Plumbing
   ServiceModel(
     id: 'service_4',
@@ -117,7 +182,7 @@ final List<ServiceModel> mockServices = [
     category: 'Plumbing Services',
     isAvailable: true,
   ),
-  
+
   // Bright Electric
   ServiceModel(
     id: 'service_7',
@@ -150,6 +215,146 @@ final List<ServiceModel> mockServices = [
     price: 700.0,
     duration: '2-3 hours',
     category: 'Electrical Services',
+    isAvailable: true,
+  ),
+
+  // AutoCare Garage (Car)
+  ServiceModel(
+    id: 'service_10',
+    providerId: 'provider_4',
+    providerName: 'AutoCare Garage',
+    name: 'Oil Change',
+    description: 'Replace old engine oil and filter for better performance',
+    price: 600.0,
+    duration: '1 hour',
+    category: 'Car Services',
+    isAvailable: true,
+  ),
+  ServiceModel(
+    id: 'service_11',
+    providerId: 'provider_4',
+    providerName: 'AutoCare Garage',
+    name: 'Tire Replacement',
+    description: 'Replace old or damaged tires with new ones',
+    price: 1000.0,
+    duration: '1-2 hours',
+    category: 'Car Services',
+    isAvailable: true,
+  ),
+  ServiceModel(
+    id: 'service_12',
+    providerId: 'provider_4',
+    providerName: 'AutoCare Garage',
+    name: 'Engine Tune-Up',
+    description: 'Comprehensive engine check and tuning for optimal performance',
+    price: 1500.0,
+    duration: '2-3 hours',
+    category: 'Car Services',
+    isAvailable: true,
+  ),
+
+  // Appliance Fix Pro
+  ServiceModel(
+    id: 'service_13',
+    providerId: 'provider_5',
+    providerName: 'Appliance Fix Pro',
+    name: 'Refrigerator Repair',
+    description: 'Fix cooling issues, compressor, or temperature control',
+    price: 700.0,
+    duration: '1-2 hours',
+    category: 'Appliance Services',
+    isAvailable: true,
+  ),
+  ServiceModel(
+    id: 'service_14',
+    providerId: 'provider_5',
+    providerName: 'Appliance Fix Pro',
+    name: 'Washing Machine Repair',
+    description: 'Repair spin issues, leaks, or electrical faults',
+    price: 800.0,
+    duration: '2-3 hours',
+    category: 'Appliance Services',
+    isAvailable: true,
+  ),
+  ServiceModel(
+    id: 'service_15',
+    providerId: 'provider_5',
+    providerName: 'Appliance Fix Pro',
+    name: 'Aircon Repair',
+    description: 'Diagnose and fix aircon cooling or electrical problems',
+    price: 900.0,
+    duration: '2-3 hours',
+    category: 'Appliance Services',
+    isAvailable: true,
+  ),
+
+  // BuildRight Construction
+  ServiceModel(
+    id: 'service_16',
+    providerId: 'provider_6',
+    providerName: 'BuildRight Construction',
+    name: 'House Renovation',
+    description: 'Full home renovation including layout and design improvements',
+    price: 50000.0,
+    duration: '3-6 weeks',
+    category: 'Construction Services',
+    isAvailable: true,
+  ),
+  ServiceModel(
+    id: 'service_17',
+    providerId: 'provider_6',
+    providerName: 'BuildRight Construction',
+    name: 'Roofing',
+    description: 'Install or repair roofing materials for leak protection',
+    price: 15000.0,
+    duration: '3-5 days',
+    category: 'Construction Services',
+    isAvailable: true,
+  ),
+  ServiceModel(
+    id: 'service_18',
+    providerId: 'provider_6',
+    providerName: 'BuildRight Construction',
+    name: 'Painting',
+    description: 'Interior and exterior wall painting services',
+    price: 8000.0,
+    duration: '2-4 days',
+    category: 'Construction Services',
+    isAvailable: true,
+  ),
+
+  // TechFix IT Solutions
+  ServiceModel(
+    id: 'service_19',
+    providerId: 'provider_7',
+    providerName: 'TechFix IT Solutions',
+    name: 'Computer Repair',
+    description: 'Hardware and software repair for PCs and laptops',
+    price: 500.0,
+    duration: '1-2 hours',
+    category: 'IT Services',
+    isAvailable: true,
+  ),
+  ServiceModel(
+    id: 'service_20',
+    providerId: 'provider_7',
+    providerName: 'TechFix IT Solutions',
+    name: 'Network Setup',
+    description: 'Install routers, modems, and Wi-Fi connections',
+    price: 700.0,
+    duration: '1-2 hours',
+    category: 'IT Services',
+    isAvailable: true,
+  ),
+  ServiceModel(
+    id: 'service_21',
+    providerId: 'provider_7',
+    providerName: 'TechFix IT Solutions',
+    name: 'Data Recovery',
+    description: 'Recover deleted or lost files from storage devices',
+    price: 1200.0,
+    duration: '2-4 hours',
+    category: 'IT Services',
     isAvailable: true,
   ),
 ];
