@@ -129,38 +129,38 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       
       // OLD: Single Service Booking Flow (Keep for backward compatibility)
-      GoRoute(
-        path: '/booking',
-        builder: (context, state) {
-          final service = state.extra as Service;
-          return BookingScreen(service: service);
-        },
-      ),
-      GoRoute(
-        path: '/checkout',
-        builder: (context, state) {
-          final params = state.extra as Map<String, dynamic>;
-          return CheckoutScreen(
-            service: params['service'] as Service,
-            selectedDate: params['selectedDate'] as DateTime,
-            selectedTime: params['selectedTime'] as String,
-            notes: params['notes'] as String,
-          );
-        },
-      ),
-      GoRoute(
-        path: '/confirmation',
-        builder: (context, state) {
-          final params = state.extra as Map<String, dynamic>;
-          return ConfirmationScreen(
-            service: params['service'] as Service,
-            selectedDate: params['selectedDate'] as DateTime,
-            selectedTime: params['selectedTime'] as String,
-            total: params['total'] as double,
-            bookingId: params['bookingId'] as String,
-          );
-        },
-      ),
+      // GoRoute(
+      //   path: '/booking',
+      //   builder: (context, state) {
+      //     final service = state.extra as Service;
+      //     return BookingScreen(service: service);
+      //   },
+      // ),
+      // GoRoute(
+      //   path: '/checkout',
+      //   builder: (context, state) {
+      //     final params = state.extra as Map<String, dynamic>;
+      //     return CheckoutScreen(
+      //       service: params['service'] as Service,
+      //       selectedDate: params['selectedDate'] as DateTime,
+      //       selectedTime: params['selectedTime'] as String,
+      //       notes: params['notes'] as String,
+      //     );
+      //   },
+      // ),
+      // GoRoute(
+      //   path: '/confirmation',
+      //   builder: (context, state) {
+      //     final params = state.extra as Map<String, dynamic>;
+      //     return ConfirmationScreen(
+      //       service: params['service'] as Service,
+      //       selectedDate: params['selectedDate'] as DateTime,
+      //       selectedTime: params['selectedTime'] as String,
+      //       total: params['total'] as double,
+      //       bookingId: params['bookingId'] as String,
+      //     );
+      //   },
+      // ),
       
       // Favorites
       GoRoute(

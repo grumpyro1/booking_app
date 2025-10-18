@@ -1,6 +1,5 @@
-import 'package:booking_app/features/home/presentation/screens/orig_home_screen.dart';
-
 import '../models/booking_model.dart';
+import '../../../home/presentation/screens/orig_home_screen.dart';
 
 class BookingsRepository {
   // Mock bookings list - this will store all bookings
@@ -13,7 +12,7 @@ class BookingsRepository {
 
   // Get all bookings
   Future<List<BookingModel>> getAllBookings() async {
-    await Future.delayed(const Duration(milliseconds: 500)); // Simulate network delay
+    await Future.delayed(const Duration(milliseconds: 500));
     return List.from(_mockBookings);
   }
 
@@ -46,7 +45,7 @@ class BookingsRepository {
     if (index != -1 && _mockBookings[index].canCancel) {
       _mockBookings[index] = BookingModel(
         id: _mockBookings[index].id,
-        service: _mockBookings[index].service,
+        services: _mockBookings[index].services,
         bookingDate: _mockBookings[index].bookingDate,
         timeSlot: _mockBookings[index].timeSlot,
         totalAmount: _mockBookings[index].totalAmount,
@@ -65,31 +64,69 @@ class BookingsRepository {
       _mockBookings.addAll([
         BookingModel(
           id: 'BK1729000001',
-          service: mockServices[0], // Balinese Massage
+          services: [
+            ServiceItem(
+              service: Service(
+                id: 'AC001',
+                name: 'Aircon Cleaning',
+                category: 'Home Services',
+                serviceType: 'Aircon Services',
+                price: 500,
+                imageUrl: '',
+                rating: 4.8,
+                provider: 'Cool Tech Services',
+                duration: '1-2 hours',
+                description: 'Professional cleaning',
+              ),
+              quantity: 2,
+            ),
+            ServiceItem(
+              service: Service(
+                id: 'AC002',
+                name: 'Aircon Installation',
+                category: 'Home Services',
+                serviceType: 'Aircon Services',
+                price: 1200,
+                imageUrl: '',
+                rating: 4.9,
+                provider: 'Cool Tech Services',
+                duration: '2-3 hours',
+                description: 'Expert installation',
+              ),
+              quantity: 1,
+            ),
+          ],
           bookingDate: DateTime.now().add(const Duration(days: 3)),
           timeSlot: '10:00 AM',
-          totalAmount: 262500,
+          totalAmount: 2200,
           status: BookingStatus.confirmed,
-          notes: 'Please use aromatherapy oils',
+          notes: 'Please call before arrival',
           createdAt: DateTime.now().subtract(const Duration(days: 2)),
         ),
         BookingModel(
           id: 'BK1729000002',
-          service: mockServices[2], // Surfing Lesson
+          services: [
+            ServiceItem(
+              service: Service(
+                id: 'PL001',
+                name: 'Leak Repair',
+                category: 'Home Services',
+                serviceType: 'Plumbing Services',
+                price: 400,
+                imageUrl: '',
+                rating: 4.7,
+                provider: 'Fix Flow Plumbing',
+                duration: '1-2 hours',
+                description: 'Fast repair',
+              ),
+              quantity: 1,
+            ),
+          ],
           bookingDate: DateTime.now().add(const Duration(days: 7)),
           timeSlot: '09:00 AM',
-          totalAmount: 315000,
+          totalAmount: 420,
           status: BookingStatus.confirmed,
           createdAt: DateTime.now().subtract(const Duration(days: 1)),
-        ),
-        BookingModel(
-          id: 'BK1729000003',
-          service: mockServices[4], // Yoga Session
-          bookingDate: DateTime.now().subtract(const Duration(days: 5)),
-          timeSlot: '07:00 AM',
-          totalAmount: 157500,
-          status: BookingStatus.completed,
-          createdAt: DateTime.now().subtract(const Duration(days: 10)),
         ),
       ]);
     }

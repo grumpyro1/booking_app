@@ -25,37 +25,18 @@ class MyBookingsScreen extends ConsumerWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: _buildTabButton(
-                    context,
-                    ref,
-                    'Upcoming',
-                    1,
-                    selectedTab == 1,
-                  ),
+                  child: _buildTabButton(context, ref, 'Upcoming', 1, selectedTab == 1),
                 ),
                 Expanded(
-                  child: _buildTabButton(
-                    context,
-                    ref,
-                    'Past',
-                    2,
-                    selectedTab == 2,
-                  ),
+                  child: _buildTabButton(context, ref, 'Past', 2, selectedTab == 2),
                 ),
                 Expanded(
-                  child: _buildTabButton(
-                    context,
-                    ref,
-                    'All',
-                    0,
-                    selectedTab == 0,
-                  ),
+                  child: _buildTabButton(context, ref, 'All', 0, selectedTab == 0),
                 ),
               ],
             ),
           ),
           const Divider(height: 1),
-          // Content
           Expanded(
             child: _buildTabContent(context, ref, selectedTab),
           ),
@@ -101,13 +82,13 @@ class MyBookingsScreen extends ConsumerWidget {
     final AsyncValue<List<BookingModel>> bookingsAsync;
 
     switch (selectedTab) {
-      case 0: // All
+      case 0:
         bookingsAsync = ref.watch(allBookingsProvider);
         break;
-      case 1: // Upcoming
+      case 1:
         bookingsAsync = ref.watch(upcomingBookingsProvider);
         break;
-      case 2: // Past
+      case 2:
         bookingsAsync = ref.watch(pastBookingsProvider);
         break;
       default:
@@ -183,20 +164,20 @@ class MyBookingsScreen extends ConsumerWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            icon,
-            size: 100,
-            color: Colors.grey[400],
-          ),
+          Icon(icon, size: 100, color: Colors.grey[400]),
           const SizedBox(height: 16),
           Text(
             message,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(color: AppColors.textSecondary),
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: AppColors.textSecondary,
+                ),
           ),
           const SizedBox(height: 8),
           Text(
             'Book a service to get started',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textHint),
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textHint,
+                ),
           ),
         ],
       ),
@@ -210,7 +191,9 @@ class MyBookingsScreen extends ConsumerWidget {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => BookingDetailScreen(booking: booking)),
+            MaterialPageRoute(
+              builder: (context) => BookingDetailScreen(booking: booking),
+            ),
           );
         },
         borderRadius: BorderRadius.circular(12),
@@ -226,49 +209,92 @@ class MyBookingsScreen extends ConsumerWidget {
                   _buildStatusBadge(booking.status),
                   Text(
                     DateFormat('MMM dd, yyyy').format(booking.bookingDate),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                   ),
                 ],
               ),
               const SizedBox(height: 12),
-              // Service Info
-              Row(
-                children: [
-                  Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(
-                      Icons.image,
-                      size: 30,
-                      color: Colors.grey[400],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+              
+              // Services Info
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.05),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        Text(
-                          booking.service.name,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                        Icon(
+                          Icons.list_alt,
+                          size: 20,
+                          color: AppColors.primary,
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(width: 8),
                         Text(
-                          booking.service.provider,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                          '${booking.services.length} ${booking.services.length == 1 ? 'Service' : 'Services'}',
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primary,
+                              ),
                         ),
                       ],
                     ),
+                    const SizedBox(height: 8),
+                    ...booking.services.map((item) => Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 4,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  '${item.service.name} ${item.quantity > 1 ? '(x${item.quantity})' : ''}',
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )),
+                  ],
+                ),
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // Provider
+              Row(
+                children: [
+                  const Icon(
+                    Icons.store,
+                    size: 16,
+                    color: AppColors.textSecondary,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    booking.providerName,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                   ),
                 ],
               ),
+              
               const SizedBox(height: 12),
               const Divider(),
               const SizedBox(height: 12),
+              
               // Time & Price
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -296,7 +322,8 @@ class MyBookingsScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-              // Cancel Button (only for pending/confirmed)
+              
+              // Cancel Button
               if (booking.canCancel) ...[
                 const SizedBox(height: 12),
                 SizedBox(
@@ -353,9 +380,7 @@ class MyBookingsScreen extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 16, color: color),
-
           const SizedBox(width: 4),
-
           Text(
             status.name.toUpperCase(),
             style: TextStyle(
@@ -374,7 +399,9 @@ class MyBookingsScreen extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Cancel Booking'),
-        content: const Text('Are you sure you want to cancel this booking? This action cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to cancel this booking? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -383,18 +410,15 @@ class MyBookingsScreen extends ConsumerWidget {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              
-              // Show loading
+
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Cancelling booking...')),
               );
 
-              // Cancel booking
               final repository = ref.read(bookingsRepositoryProvider);
               final success = await repository.cancelBooking(booking.id);
 
               if (success) {
-                // Refresh the lists
                 ref.invalidate(allBookingsProvider);
                 ref.invalidate(upcomingBookingsProvider);
                 ref.invalidate(pastBookingsProvider);

@@ -30,20 +30,27 @@ class ConfirmationMultiScreen extends ConsumerWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final repository = ref.read(bookingsRepositoryProvider);
       
+      final serviceItems = cartItems.map((item) => ServiceItem(
+      service: item.service,
+      quantity: item.quantity,
+    )).toList();
+    
       // For now, we'll save the first service as the main booking
       // In a real app, you'd create a proper multi-service booking model
       final booking = BookingModel(
-        id: bookingId,
-        service: cartItems.first.service,
-        bookingDate: selectedDate,
-        timeSlot: selectedTime,
-        totalAmount: total,
-        status: BookingStatus.confirmed,
-        notes: '${cartItems.length} services booked',
-        createdAt: DateTime.now(),
-      );
-      repository.addBooking(booking);
-    });
+      id: bookingId,
+      services: serviceItems,
+      bookingDate: selectedDate,
+      timeSlot: selectedTime,
+      totalAmount: total,
+      status: BookingStatus.confirmed,
+      notes: cartItems.length > 1 
+          ? '${cartItems.length} services booked together'
+          : null,
+      createdAt: DateTime.now(),
+    );
+    repository.addBooking(booking);
+  });
 
     return Scaffold(
       body: SafeArea(
