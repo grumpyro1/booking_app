@@ -1,14 +1,14 @@
 // lib/features/providers/presentation/screens/provider_detail_screen.dart
 
 import 'package:booking_app/features/home/data/models/service_provider_model.dart';
-import 'package:booking_app/shared/widgets/category_icon_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import '../../../../core/constants/mock_providers_data.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../cart/data/providers/cart_provider.dart';
 import '../../../favorites/data/providers/favorites_provider.dart';
+import '../../../reviews/data/providers/review_provider.dart';
+import '../../../reviews/presentation/screens/provider_reviews_screen.dart';
 
 class ProviderDetailScreen extends ConsumerWidget {
   final ServiceProviderModel provider;
@@ -24,6 +24,9 @@ class ProviderDetailScreen extends ConsumerWidget {
     final cart = ref.watch(cartProvider)[provider.id];
     final cartItemCount = cart?.totalItems ?? 0;
     final isFavorite = ref.watch(favoritesProvider).contains(provider.id);
+    final reviews = ref.watch(reviewProvider.notifier).getReviewsByProvider(provider.id);
+    final averageRating = ref.watch(reviewProvider.notifier).getAverageRating(provider.id);
+    final reviewsCount = reviews.length;
 
     return Scaffold(
       appBar: AppBar(
@@ -54,14 +57,10 @@ class ProviderDetailScreen extends ConsumerWidget {
                 IconButton(
                   icon: const Icon(Icons.shopping_cart),
                   onPressed: () {
-                    // Navigator.pushNamed(
-                    //   context,
-                    //   '/single-cart',
-                    //   arguments: provider.id,
-                    // );
-                    context.push(
+                    Navigator.pushNamed(
+                      context,
                       '/single-cart',
-                      extra: provider.id,
+                      arguments: provider.id,
                     );
                   },
                 ),
@@ -118,7 +117,7 @@ class ProviderDetailScreen extends ConsumerWidget {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(
-                                CategoryIconHelper.getCategoryIcon(provider.category),
+                                _getCategoryIcon(provider.category),
                                 size: 40,
                                 color: AppColors.primary,
                               ),
@@ -209,6 +208,83 @@ class ProviderDetailScreen extends ConsumerWidget {
                   ),
 
                   const SizedBox(height: 20),
+
+                  // Reviews Section
+                  if (reviewsCount > 0) ...[
+                    Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.amber.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: Colors.amber.withOpacity(0.3)),
+                      ),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ProviderReviewsScreen(
+                                providerId: provider.id,
+                                providerName: provider.name,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Row(
+                          children: [
+                            Column(
+                              children: [
+                                Text(
+                                  averageRating.toStringAsFixed(1),
+                                  style: const TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.amber,
+                                  ),
+                                ),
+                                Row(
+                                  children: List.generate(5, (index) {
+                                    return Icon(
+                                      index < averageRating.round()
+                                          ? Icons.star
+                                          : Icons.star_border,
+                                      color: Colors.amber,
+                                      size: 16,
+                                    );
+                                  }),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '$reviewsCount review${reviewsCount > 1 ? 's' : ''}',
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Text(
+                                    'Tap to see all reviews',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(Icons.chevron_right),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
 
                   // Services Section
                   Padding(
@@ -406,14 +482,10 @@ class ProviderDetailScreen extends ConsumerWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Navigator.pushNamed(
-                      //   context,
-                      //   '/single-cart',
-                      //   arguments: provider.id,
-                      // );
-                      context.push(
+                      Navigator.pushNamed(
+                        context,
                         '/single-cart',
-                        extra: provider.id,
+                        arguments: provider.id,
                       );
                     },
                     child: Text('View Cart ($cartItemCount items)'),
@@ -424,5 +496,18 @@ class ProviderDetailScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  IconData _getCategoryIcon(String category) {
+    switch (category) {
+      case 'Aircon Services':
+        return Icons.ac_unit;
+      case 'Plumbing Services':
+        return Icons.plumbing;
+      case 'Electrical Services':
+        return Icons.electrical_services;
+      default:
+        return Icons.build;
+    }
   }
 }

@@ -1,4 +1,6 @@
-import 'package:booking_app/features/auth/data/provider/auth_provider.dart';
+// lib/core/router/app_router.dart
+
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/data/provider/auth_provider.dart';
@@ -9,16 +11,25 @@ import '../../features/cart/presentation/screens/all_carts_screen.dart';
 import '../../features/cart/presentation/screens/single_cart_screen.dart';
 import '../../features/booking/presentation/screens/booking_confirmation_screen.dart';
 import '../../features/booking/presentation/screens/booking_success_screen.dart';
+import '../../features/splash/presentation/screens/splash_screen.dart';
+import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
 
   return GoRouter(
-    initialLocation: authState.isLoggedIn ? '/home' : '/login',
+    initialLocation: '/',
     redirect: (context, state) {
       final isLoggedIn = authState.isLoggedIn;
+      final isSplash = state.matchedLocation == '/';
+      final isOnboarding = state.matchedLocation == '/onboarding';
       final isLoggingIn = state.matchedLocation == '/login';
       final isRegistering = state.matchedLocation == '/register';
+
+      // Allow splash and onboarding
+      if (isSplash || isOnboarding) {
+        return null;
+      }
 
       // Redirect to login if not logged in and not on auth pages
       if (!isLoggedIn && !isLoggingIn && !isRegistering) {
@@ -33,6 +44,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       return null;
     },
     routes: [
+      // Splash Screen
+      GoRoute(
+        path: '/',
+        builder: (context, state) => const SplashScreen(),
+      ),
+
+      // Onboarding Screen
+      GoRoute(
+        path: '/onboarding',
+        builder: (context, state) => const OnboardingScreen(),
+      ),
+
       // Auth Routes
       GoRoute(
         path: '/login',

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../data/models/booking_model.dart';
+import 'booking_detail_screen.dart';
 
 class MyBookingsScreen extends ConsumerStatefulWidget {
   const MyBookingsScreen({super.key});
@@ -183,10 +184,11 @@ class BookingCard extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: 16),
       child: InkWell(
         onTap: () {
-          Navigator.pushNamed(
+          Navigator.push(
             context,
-            '/booking-detail',
-            arguments: booking.id,
+            MaterialPageRoute(
+              builder: (_) => BookingDetailScreen(bookingId: booking.id),
+            ),
           );
         },
         borderRadius: BorderRadius.circular(12),
