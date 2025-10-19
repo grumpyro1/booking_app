@@ -1,12 +1,14 @@
 // lib/features/providers/presentation/screens/provider_detail_screen.dart
 
 import 'package:booking_app/features/home/data/models/service_provider_model.dart';
+import 'package:booking_app/shared/widgets/category_icon_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/mock_providers_data.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../cart/data/providers/cart_provider.dart';
+import '../../../favorites/data/providers/favorites_provider.dart';
 
 class ProviderDetailScreen extends ConsumerWidget {
   final ServiceProviderModel provider;
@@ -21,11 +23,31 @@ class ProviderDetailScreen extends ConsumerWidget {
 
     final cart = ref.watch(cartProvider)[provider.id];
     final cartItemCount = cart?.totalItems ?? 0;
+    final isFavorite = ref.watch(favoritesProvider).contains(provider.id);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(provider.name),
         actions: [
+          IconButton(
+            icon: Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: isFavorite ? Colors.red : null,
+            ),
+            onPressed: () {
+              ref.read(favoritesProvider.notifier).toggleFavorite(provider.id);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    isFavorite
+                        ? 'Removed from favorites'
+                        : 'Added to favorites',
+                  ),
+                  duration: const Duration(seconds: 1),
+                ),
+              );
+            },
+          ),
           if (cartItemCount > 0)
             Stack(
               children: [
@@ -37,7 +59,6 @@ class ProviderDetailScreen extends ConsumerWidget {
                     //   '/single-cart',
                     //   arguments: provider.id,
                     // );
-
                     context.push(
                       '/single-cart',
                       extra: provider.id,
@@ -97,7 +118,7 @@ class ProviderDetailScreen extends ConsumerWidget {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(
-                                _getCategoryIcon(provider.category),
+                                CategoryIconHelper.getCategoryIcon(provider.category),
                                 size: 40,
                                 color: AppColors.primary,
                               ),
@@ -390,7 +411,6 @@ class ProviderDetailScreen extends ConsumerWidget {
                       //   '/single-cart',
                       //   arguments: provider.id,
                       // );
-
                       context.push(
                         '/single-cart',
                         extra: provider.id,
@@ -404,18 +424,5 @@ class ProviderDetailScreen extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case 'Aircon Services':
-        return Icons.ac_unit;
-      case 'Plumbing Services':
-        return Icons.plumbing;
-      case 'Electrical Services':
-        return Icons.electrical_services;
-      default:
-        return Icons.build;
-    }
   }
 }

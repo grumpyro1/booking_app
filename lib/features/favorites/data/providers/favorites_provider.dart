@@ -1,46 +1,59 @@
-// import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:flutter_riverpod/legacy.dart';
-// import '../../data/repositories/favorites_repository.dart';
-// import '../../../home/presentation/screens/orig_home_screen.dart';
+// lib/features/favorites/data/providers/favorites_provider.dart
 
-// // Repository provider
-// final favoritesRepositoryProvider = Provider((ref) => FavoritesRepository());
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// // Check if a specific service is favorite
-// final isFavoriteProvider = Provider.family<bool, String>((ref, serviceId) {
-//   final repository = ref.watch(favoritesRepositoryProvider);
-//   return repository.isFavorite(serviceId);
-// });
+class FavoritesNotifier extends Notifier<Set<String>> {
+  @override
+  Set<String> build() {
+    return {}; // Empty set of provider IDs
+  }
 
-// // Get all favorite services
-// final favoriteServicesProvider = FutureProvider<List<Service>>((ref) async {
-//   final repository = ref.watch(favoritesRepositoryProvider);
-//   return repository.getFavoriteServices();
-// });
+  // Toggle favorite
+  void toggleFavorite(String providerId) {
+    final currentFavorites = {...state};
+    
+    if (currentFavorites.contains(providerId)) {
+      currentFavorites.remove(providerId);
+    } else {
+      currentFavorites.add(providerId);
+    }
+    
+    state = currentFavorites;
+  }
 
-// // Favorites count
-// final favoritesCountProvider = Provider<int>((ref) {
-//   final repository = ref.watch(favoritesRepositoryProvider);
-//   return repository.getFavoritesCount();
-// });
+  // Check if provider is favorite
+  bool isFavorite(String providerId) {
+    return state.contains(providerId);
+  }
 
-// // State notifier to handle favorite toggle with loading state
-// class FavoriteNotifier extends StateNotifier<bool> {
-//   final FavoritesRepository repository;
-//   final String serviceId;
+  // Get all favorites
+  Set<String> getAllFavorites() {
+    return state;
+  }
 
-//   FavoriteNotifier(this.repository, this.serviceId) 
-//       : super(repository.isFavorite(serviceId));
+  // Get favorites count
+  int get favoritesCount => state.length;
 
-//   Future<void> toggle() async {
-//     final newState = await repository.toggleFavorite(serviceId);
-//     state = newState;
-//   }
-// }
+  // Clear all favorites
+  void clearAllFavorites() {
+    state = {};
+  }
 
-// final favoriteNotifierProvider = StateNotifierProvider.family<FavoriteNotifier, bool, String>(
-//   (ref, serviceId) {
-//     final repository = ref.watch(favoritesRepositoryProvider);
-//     return FavoriteNotifier(repository, serviceId);
-//   },
-// );
+  // Add favorite
+  void addFavorite(String providerId) {
+    if (!state.contains(providerId)) {
+      state = {...state, providerId};
+    }
+  }
+
+  // Remove favorite
+  void removeFavorite(String providerId) {
+    final currentFavorites = {...state};
+    currentFavorites.remove(providerId);
+    state = currentFavorites;
+  }
+}
+
+final favoritesProvider = NotifierProvider<FavoritesNotifier, Set<String>>(() {
+  return FavoritesNotifier();
+});

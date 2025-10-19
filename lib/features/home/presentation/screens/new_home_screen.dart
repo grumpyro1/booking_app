@@ -1,14 +1,18 @@
 // lib/features/home/presentation/screens/new_home_screen.dart
 
 import 'package:booking_app/features/provider/presentation/screens/provider_detail_screen.dart';
+import 'package:booking_app/shared/widgets/category_icon_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/mock_providers_data.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/data/provider/auth_provider.dart';
 import '../../../cart/data/providers/cart_provider.dart';
 import '../../../booking/presentation/screens/my_bookings_screen.dart';
+import '../../../search/presentation/screens/search_screen.dart';
+import '../../../profile/presentation/screens/profile_screen.dart';
 
 final selectedIndexProvider = StateProvider<int>((ref) => 0);
 
@@ -20,10 +24,10 @@ class NewHomeScreen extends ConsumerWidget {
     final selectedIndex = ref.watch(selectedIndexProvider);
 
     final List<Widget> pages = [
-      const HomeTabContent(),
-      const Center(child: Text('Search')),
-      const MyBookingsScreen(),
-      const Center(child: Text('Profile')),
+       HomeTabContent(),
+       SearchScreen(),
+       MyBookingsScreen(),
+       ProfileScreen(),
     ];
 
     return Scaffold(
@@ -81,7 +85,8 @@ class HomeTabContent extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.shopping_cart_outlined),
                 onPressed: () {
-                  Navigator.pushNamed(context, '/all-carts');
+                  // Navigator.pushNamed(context, '/all-carts');
+                  context.push('/all-carts');
                 },
               ),
               if (totalCarts > 0)
@@ -211,7 +216,7 @@ class HomeTabContent extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Icon(
-                              _getCategoryIcon(provider.category),
+                              CategoryIconHelper.getCategoryIcon(provider.category),
                               color: AppColors.primary,
                               size: 30,
                             ),
@@ -290,7 +295,7 @@ class HomeTabContent extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Icon(
-                              _getCategoryIcon(provider.category),
+                              CategoryIconHelper.getCategoryIcon(provider.category),
                               size: 40,
                               color: AppColors.primary,
                             ),
@@ -375,26 +380,4 @@ class HomeTabContent extends ConsumerWidget {
       ),
     );
   }
-
-  IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case 'Aircon Services':
-        return Icons.ac_unit;
-      case 'Plumbing Services':
-        return Icons.plumbing;
-      case 'Electrical Services':
-        return Icons.electrical_services;
-      case 'Car Services':
-        return Icons.directions_car;
-      case 'Appliance Services':
-        return Icons.kitchen;
-      case 'Construction Services':
-        return Icons.construction;
-      case 'IT Services':
-        return Icons.computer;
-      default:
-        return Icons.build;
-    }
-  }
-
 }
