@@ -10,8 +10,15 @@ class AuthNotifier extends Notifier<AuthState> { // changes or updates that stat
   @override
   AuthState build() { // Called when AuthNotifier starts
     _authRepository = ref.read(authRepositoryProvider); // Gets the repository from Riverpod
-    _checkAuth(); // check if user is already logged in when the app starts
-    return AuthState(); // empty initial state (not logged in yet). [ user: null, isLoading: false, error: null ]
+    // _checkAuth(); // check if user is already logged in when the app starts
+    // return AuthState(); // empty initial state (not logged in yet). [ user: null, isLoading: false, error: null ]
+
+    // ✅ Schedule _checkAuth to run AFTER build completes
+    Future.microtask(() => _checkAuth());
+    
+    // ✅ Return loading state immediately
+    return AuthState(isLoading: true);
+
   }
 
   Future<void> _checkAuth() async {

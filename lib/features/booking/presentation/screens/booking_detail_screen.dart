@@ -34,6 +34,7 @@ class BookingDetailScreen extends ConsumerWidget {
               booking.status == BookingStatus.accepted)
             PopupMenuButton(
               itemBuilder: (context) => [
+                // if (booking.status == BookingStatus.pending)
                 if (booking.status == BookingStatus.accepted)
                   const PopupMenuItem(
                     value: 'reschedule',

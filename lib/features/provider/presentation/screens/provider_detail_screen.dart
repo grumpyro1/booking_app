@@ -3,6 +3,7 @@
 import 'package:booking_app/features/home/data/models/service_provider_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/mock_providers_data.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../cart/data/providers/cart_provider.dart';
@@ -57,11 +58,15 @@ class ProviderDetailScreen extends ConsumerWidget {
                 IconButton(
                   icon: const Icon(Icons.shopping_cart),
                   onPressed: () {
-                    Navigator.pushNamed(
-                      context,
-                      '/single-cart',
-                      arguments: provider.id,
-                    );
+                    // Navigator.pushNamed(
+                    //   context,
+                    //   '/single-cart',
+                    //   arguments: provider.id,
+                    // );
+                    context.push(
+                        '/single-cart',
+                        extra: provider.id,
+                      );
                   },
                 ),
                 Positioned(
@@ -482,11 +487,16 @@ class ProviderDetailScreen extends ConsumerWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pushNamed(
-                        context,
+                      // Navigator.pushNamed(
+                      //   context,
+                      //   '/single-cart',
+                      //   arguments: provider.id,
+                      // );
+                      context.push(
                         '/single-cart',
-                        arguments: provider.id,
+                        extra: provider.id,
                       );
+
                     },
                     child: Text('View Cart ($cartItemCount items)'),
                   ),

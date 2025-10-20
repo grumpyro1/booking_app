@@ -1,5 +1,6 @@
 // lib/core/router/app_router.dart
 
+import 'package:booking_app/features/payment/presentation/screens/checkout_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -21,6 +22,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     initialLocation: '/',
     redirect: (context, state) {
       final isLoggedIn = authState.isLoggedIn;
+      final isLoading = authState.isLoading;
       final isSplash = state.matchedLocation == '/';
       final isOnboarding = state.matchedLocation == '/onboarding';
       final isLoggingIn = state.matchedLocation == '/login';
@@ -29,6 +31,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Allow splash and onboarding
       if (isSplash || isOnboarding) {
         return null;
+      }
+
+      // Keep on splash while auth is loading
+      if (isLoading) {
+        return '/';
       }
 
       // Redirect to login if not logged in and not on auth pages
@@ -91,6 +98,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final providerId = state.extra as String;
           return BookingConfirmationScreen(providerId: providerId);
+        },
+      ),
+      GoRoute(
+        path: '/checkout',
+        builder: (context, state) {
+          final bookingDetails = state.extra as Map<String, dynamic>;
+          return CheckoutScreen(bookingDetails: bookingDetails);
         },
       ),
       GoRoute(

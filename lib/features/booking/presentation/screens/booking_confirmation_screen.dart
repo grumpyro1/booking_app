@@ -1,11 +1,9 @@
 // lib/features/booking/presentation/screens/booking_confirmation_screen.dart
 
-import 'package:booking_app/features/booking/data/provider/bookings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../auth/data/provider/auth_provider.dart';
 import '../../../cart/data/providers/cart_provider.dart';
 import '../../../../shared/widgets/button_widget.dart';
 
@@ -27,7 +25,6 @@ class _BookingConfirmationScreenState
   
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
   String _selectedTime = '09:00 AM';
-  bool _isLoading = false;
 
   final List<String> _timeSlots = [
     '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
@@ -55,67 +52,36 @@ class _BookingConfirmationScreenState
     }
   }
 
-  Future<void> _confirmBooking() async {
+  void _proceedToCheckout() {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      final cart = ref.read(cartProvider)[widget.providerId];
-      final user = ref.read(authProvider).user;
-
-      if (cart == null || user == null) {
-        throw Exception('Cart or user not found');
-      }
-
-      const serviceFee = 50.0;
-
-      // Create booking
-      final booking = await ref.read(bookingProvider.notifier).createBooking(
-            userId: user.id,
-            providerId: widget.providerId,
-            providerName: cart.providerName,
-            services: cart.items,
-            subtotal: cart.subtotal,
-            serviceFee: serviceFee,
-            serviceAddress: _addressController.text.trim(),
-            scheduledDate: _selectedDate,
-            scheduledTime: _selectedTime,
-            notes: _notesController.text.trim().isEmpty
-                ? null
-                : _notesController.text.trim(),
-          );
-
-      // Clear cart after successful booking
-      ref.read(cartProvider.notifier).clearCart(widget.providerId);
-
-      if (mounted) {
-        // Navigate to success screen
-        // Navigator.pushReplacementNamed(
-        //   context,
-        //   '/booking-success',
-        //   arguments: booking.id,
-        // );
-        context.pushReplacement('/booking-success', extra: booking.id);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to create booking: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+    final cart = ref.read(cartProvider)[widget.providerId];
+    if (cart == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Cart not found'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
     }
+
+    // Pass booking details to checkout screen
+    final bookingDetails = {
+      'providerId': widget.providerId,
+      'providerName': cart.providerName,
+      'services': cart.items,
+      'subtotal': cart.subtotal,
+      'serviceFee': 50.0,
+      'serviceAddress': _addressController.text.trim(),
+      'scheduledDate': _selectedDate,
+      'scheduledTime': _selectedTime,
+      'notes': _notesController.text.trim().isEmpty
+          ? null
+          : _notesController.text.trim(),
+    };
+
+    context.push('/checkout', extra: bookingDetails);
   }
 
   @override
@@ -459,9 +425,8 @@ class _BookingConfirmationScreenState
               ),
               child: SafeArea(
                 child: ButtonWidget(
-                  label: 'Confirm Booking',
-                  onPressed: _isLoading ? null : _confirmBooking,
-                  isLoading: _isLoading,
+                  label: 'Proceed to Checkout',
+                  onPressed: _proceedToCheckout,
                 ),
               ),
             ),
