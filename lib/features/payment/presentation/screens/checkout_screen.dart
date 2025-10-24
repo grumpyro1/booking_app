@@ -1,6 +1,7 @@
 // lib/features/booking/presentation/screens/checkout_screen.dart
 
 import 'package:booking_app/features/booking/data/provider/bookings_provider.dart';
+import 'package:booking_app/features/payment/presentation/widgets/payment_option_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -111,9 +112,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   // Order Summary Header
                   Text(
                     'Order Summary',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   ),
 
                   const SizedBox(height: 16),
@@ -204,15 +203,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   // Payment Method Section
                   Text(
                     'Payment Method',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   ),
 
                   const SizedBox(height: 16),
 
                   // COD Option
-                  _PaymentOption(
+                  PaymentOptionWidget(
                     icon: Icons.payments,
                     title: 'Cash on Delivery',
                     subtitle: 'Pay when service is completed',
@@ -229,7 +226,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   const SizedBox(height: 12),
 
                   // GCash Option (Disabled)
-                  _PaymentOption(
+                  PaymentOptionWidget(
                     icon: Icons.account_balance_wallet,
                     title: 'GCash',
                     subtitle: 'Coming soon',
@@ -242,7 +239,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   const SizedBox(height: 12),
 
                   // Card Option (Disabled)
-                  _PaymentOption(
+                  PaymentOptionWidget(
                     icon: Icons.credit_card,
                     title: 'Credit/Debit Card',
                     subtitle: 'Coming soon',
@@ -260,9 +257,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                     decoration: BoxDecoration(
                       color: AppColors.info.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.info.withOpacity(0.3),
-                      ),
+                      border: Border.all(color: AppColors.info.withOpacity(0.3)),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -279,18 +274,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                             children: [
                               Text(
                                 'Payment Information',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.info,
-                                ),
+                                style: TextStyle(fontWeight: FontWeight.bold,color: AppColors.info),
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 'For Cash on Delivery: Please prepare the exact amount. You can pay the service provider when the service is completed.',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: AppColors.info,
-                                ),
+                                style: TextStyle(fontSize: 13,color: AppColors.info),
                               ),
                             ],
                           ),
@@ -356,9 +345,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                     width: 20,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white),
-                                    ),
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
                                   )
                                 : const Text('Confirm Payment'),
                           ),
@@ -371,101 +358,6 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _PaymentOption extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final PaymentMethod value;
-  final PaymentMethod groupValue;
-  final ValueChanged<PaymentMethod?>? onChanged;
-  final bool isEnabled;
-
-  const _PaymentOption({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.value,
-    required this.groupValue,
-    required this.onChanged,
-    required this.isEnabled,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isSelected = value == groupValue;
-
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: isSelected
-              ? AppColors.primary
-              : (isEnabled ? AppColors.border : AppColors.border.withOpacity(0.3)),
-          width: isSelected ? 2 : 1,
-        ),
-        borderRadius: BorderRadius.circular(12),
-        color: isEnabled ? Colors.white : Colors.grey[50],
-      ),
-      child: RadioListTile<PaymentMethod>(
-        value: value,
-        groupValue: groupValue,
-        onChanged: isEnabled ? onChanged : null,
-        title: Row(
-          children: [
-            Icon(
-              icon,
-              color: isEnabled ? AppColors.primary : AppColors.textSecondary,
-              size: 24,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: isEnabled
-                          ? AppColors.textPrimary
-                          : AppColors.textSecondary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.textSecondary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (!isEnabled)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.warning.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  'Soon',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.warning,
-                  ),
-                ),
-              ),
-          ],
-        ),
-        activeColor: AppColors.primary,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
     );
   }

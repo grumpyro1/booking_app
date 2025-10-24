@@ -13,12 +13,10 @@ class BookingConfirmationScreen extends ConsumerStatefulWidget {
   const BookingConfirmationScreen({super.key, required this.providerId});
 
   @override
-  ConsumerState<BookingConfirmationScreen> createState() =>
-      _BookingConfirmationScreenState();
+  ConsumerState<BookingConfirmationScreen> createState() => _BookingConfirmationScreenState();
 }
 
-class _BookingConfirmationScreenState
-    extends ConsumerState<BookingConfirmationScreen> {
+class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _addressController = TextEditingController();
   final _notesController = TextEditingController();
@@ -76,9 +74,7 @@ class _BookingConfirmationScreenState
       'serviceAddress': _addressController.text.trim(),
       'scheduledDate': _selectedDate,
       'scheduledTime': _selectedTime,
-      'notes': _notesController.text.trim().isEmpty
-          ? null
-          : _notesController.text.trim(),
+      'notes': _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
     };
 
     context.push('/checkout', extra: bookingDetails);
@@ -99,9 +95,7 @@ class _BookingConfirmationScreenState
     final total = cart.subtotal + serviceFee;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Confirm Booking'),
-      ),
+      appBar: AppBar( title: const Text('Confirm Booking')),
       body: Form(
         key: _formKey,
         child: Column(
@@ -185,10 +179,7 @@ class _BookingConfirmationScreenState
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
-                                    ?.copyWith(
-                                      color: AppColors.primary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    ?.copyWith(color: AppColors.primary,fontWeight: FontWeight.bold),
                               ),
                             ),
                             const SizedBox(width: 12),

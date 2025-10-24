@@ -34,7 +34,6 @@ class BookingDetailScreen extends ConsumerWidget {
               booking.status == BookingStatus.accepted)
             PopupMenuButton(
               itemBuilder: (context) => [
-                // if (booking.status == BookingStatus.pending)
                 if (booking.status == BookingStatus.accepted)
                   const PopupMenuItem(
                     value: 'reschedule',
@@ -383,6 +382,44 @@ class BookingDetailScreen extends ConsumerWidget {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 16),
+                        // Payment Method Display
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                _getPaymentIcon(booking.paymentMethod),
+                                color: AppColors.primary,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 12),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Payment Method',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    booking.paymentMethodText,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -401,9 +438,9 @@ class BookingDetailScreen extends ConsumerWidget {
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.info_outline, color: Colors.red),
+                              const Icon(Icons.info_outline, color: Colors.red),
                               const SizedBox(width: 8),
-                              Text(
+                              const Text(
                                 'Cancellation Reason',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
@@ -415,7 +452,7 @@ class BookingDetailScreen extends ConsumerWidget {
                           const SizedBox(height: 8),
                           Text(
                             booking.cancellationReason!,
-                            style: TextStyle(color: Colors.red),
+                            style: const TextStyle(color: Colors.red),
                           ),
                         ],
                       ),
@@ -522,6 +559,22 @@ class BookingDetailScreen extends ConsumerWidget {
         return 'Service completed successfully';
       case BookingStatus.cancelled:
         return 'This booking has been cancelled';
+    }
+  }
+
+  IconData _getPaymentIcon(String paymentMethod) {
+    switch (paymentMethod.toLowerCase()) {
+      case 'cod':
+      case 'cash on delivery':
+        return Icons.payments;
+      case 'gcash':
+        return Icons.account_balance_wallet;
+      case 'card':
+      case 'credit card':
+      case 'debit card':
+        return Icons.credit_card;
+      default:
+        return Icons.payment;
     }
   }
 

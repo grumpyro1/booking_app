@@ -63,9 +63,7 @@ class BookingSuccessScreen extends ConsumerWidget {
 
                     Text(
                       'Your booking has been successfully created',
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: AppColors.textSecondary),
                       textAlign: TextAlign.center,
                     ),
 
@@ -140,8 +138,7 @@ class BookingSuccessScreen extends ConsumerWidget {
                             context,
                             icon: Icons.list_alt,
                             label: 'Services',
-                            value:
-                                '${booking.services.length} service${booking.services.length > 1 ? 's' : ''}',
+                            value: '${booking.services.length} service${booking.services.length > 1 ? 's' : ''}',
                           ),
 
                           const SizedBox(height: 16),
@@ -200,9 +197,7 @@ class BookingSuccessScreen extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color: AppColors.info.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: AppColors.info.withOpacity(0.3),
-                        ),
+                        border: Border.all(color: AppColors.info.withOpacity(0.3)),
                       ),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,9 +228,7 @@ class BookingSuccessScreen extends ConsumerWidget {
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall
-                                      ?.copyWith(
-                                        color: AppColors.info,
-                                      ),
+                                      ?.copyWith(color: AppColors.info),
                                 ),
                               ],
                             ),

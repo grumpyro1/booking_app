@@ -14,8 +14,7 @@ class MyBookingsScreen extends ConsumerStatefulWidget {
   ConsumerState<MyBookingsScreen> createState() => _MyBookingsScreenState();
 }
 
-class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen>
-    with SingleTickerProviderStateMixin {
+class _MyBookingsScreenState extends ConsumerState<MyBookingsScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -74,8 +73,7 @@ class _BookingsList extends ConsumerWidget {
     switch (type) {
       case BookingListType.active:
         bookings = allBookings.where((b) {
-          return b.status != BookingStatus.completed &&
-              b.status != BookingStatus.cancelled;
+          return b.status != BookingStatus.completed && b.status != BookingStatus.cancelled;
         }).toList();
         break;
       case BookingListType.completed:
@@ -333,9 +331,7 @@ class BookingCard extends ConsumerWidget {
                       onPressed: () {
                         // TODO: Implement book again
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Book Again - Coming soon'),
-                          ),
+                          const SnackBar(content: Text('Book Again - Coming soon')),
                         );
                       },
                       child: const Text('Book Again'),
@@ -359,9 +355,7 @@ class BookingCard extends ConsumerWidget {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(
-              'Are you sure you want to cancel this booking?',
-            ),
+            const Text('Are you sure you want to cancel this booking?'),
             const SizedBox(height: 16),
             TextField(
               controller: reasonController,
@@ -385,23 +379,16 @@ class BookingCard extends ConsumerWidget {
                   ? 'No reason provided'
                   : reasonController.text.trim();
 
-              await ref.read(bookingProvider.notifier).cancelBooking(
-                    bookingId,
-                    reason,
-                  );
+              await ref.read(bookingProvider.notifier).cancelBooking(bookingId, reason);
 
               if (context.mounted) {
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Booking cancelled successfully'),
-                  ),
+                  const SnackBar(content: Text('Booking cancelled successfully')),
                 );
               }
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Cancel Booking'),
           ),
         ],

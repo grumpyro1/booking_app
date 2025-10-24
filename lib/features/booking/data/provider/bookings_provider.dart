@@ -22,6 +22,7 @@ class BookingNotifier extends Notifier<List<BookingModel>> {
     required DateTime scheduledDate,
     required String scheduledTime,
     String? notes,
+    String paymentMethod = 'cod', // Added payment method parameter
   }) async {
     // Simulate API delay
     await Future.delayed(const Duration(seconds: 1));
@@ -41,6 +42,7 @@ class BookingNotifier extends Notifier<List<BookingModel>> {
       status: BookingStatus.pending,
       createdAt: DateTime.now(),
       notes: notes,
+      paymentMethod: paymentMethod,
     );
 
     state = [...state, booking];
@@ -104,6 +106,25 @@ class BookingNotifier extends Notifier<List<BookingModel>> {
         return booking.copyWith(
           status: BookingStatus.cancelled,
           cancellationReason: reason,
+        );
+      }
+      return booking;
+    }).toList();
+  }
+
+  // Reschedule booking
+  Future<void> rescheduleBooking({
+    required String bookingId,
+    required DateTime newDate,
+    required String newTime,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    state = state.map((booking) {
+      if (booking.id == bookingId) {
+        return booking.copyWith(
+          scheduledDate: newDate,
+          scheduledTime: newTime,
         );
       }
       return booking;

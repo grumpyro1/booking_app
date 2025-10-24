@@ -197,9 +197,7 @@ class _RescheduleBookingScreenState
                               ),
                               Text(
                                 '${widget.booking.services.length} service${widget.booking.services.length > 1 ? 's' : ''}',
-                                style: TextStyle(
-                                  color: AppColors.textSecondary,
-                                ),
+                                style: TextStyle( color: AppColors.textSecondary),
                               ),
                             ],
                           ),
@@ -213,9 +211,7 @@ class _RescheduleBookingScreenState
                   // New Schedule Section
                   Text(
                     'Select New Schedule',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   ),
 
                   const SizedBox(height: 16),
@@ -242,9 +238,7 @@ class _RescheduleBookingScreenState
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall
-                                      ?.copyWith(
-                                        color: AppColors.textSecondary,
-                                      ),
+                                      ?.copyWith(color: AppColors.textSecondary),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
@@ -284,9 +278,7 @@ class _RescheduleBookingScreenState
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
-                                  ?.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
+                                  ?.copyWith(color: AppColors.textSecondary),
                             ),
                           ],
                         ),
@@ -321,9 +313,7 @@ class _RescheduleBookingScreenState
                     decoration: BoxDecoration(
                       color: AppColors.warning.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.warning.withOpacity(0.3),
-                      ),
+                      border: Border.all(color: AppColors.warning.withOpacity(0.3)),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -388,8 +378,7 @@ class _RescheduleBookingScreenState
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
                       : const Text('Confirm Reschedule'),

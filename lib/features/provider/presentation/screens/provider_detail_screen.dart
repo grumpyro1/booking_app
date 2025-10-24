@@ -1,6 +1,7 @@
 // lib/features/providers/presentation/screens/provider_detail_screen.dart
 
 import 'package:booking_app/features/home/data/models/service_provider_model.dart';
+import 'package:booking_app/shared/widgets/category_icon_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -42,11 +43,7 @@ class ProviderDetailScreen extends ConsumerWidget {
               ref.read(favoritesProvider.notifier).toggleFavorite(provider.id);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(
-                    isFavorite
-                        ? 'Removed from favorites'
-                        : 'Added to favorites',
-                  ),
+                  content: Text(isFavorite ? 'Removed from favorites': 'Added to favorites'),
                   duration: const Duration(seconds: 1),
                 ),
               );
@@ -63,10 +60,7 @@ class ProviderDetailScreen extends ConsumerWidget {
                     //   '/single-cart',
                     //   arguments: provider.id,
                     // );
-                    context.push(
-                        '/single-cart',
-                        extra: provider.id,
-                      );
+                    context.push('/single-cart',extra: provider.id);
                   },
                 ),
                 Positioned(
@@ -122,7 +116,7 @@ class ProviderDetailScreen extends ConsumerWidget {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Icon(
-                                _getCategoryIcon(provider.category),
+                                CategoryIconHelper.getCategoryIcon(provider.category),
                                 size: 40,
                                 color: AppColors.primary,
                               ),
@@ -137,9 +131,7 @@ class ProviderDetailScreen extends ConsumerWidget {
                                     style: Theme.of(context)
                                         .textTheme
                                         .headlineSmall
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                        ?.copyWith(fontWeight: FontWeight.bold),
                                   ),
                                   const SizedBox(height: 4),
                                   Row(
@@ -202,9 +194,7 @@ class ProviderDetailScreen extends ConsumerWidget {
                               style: Theme.of(context)
                                   .textTheme
                                   .bodySmall
-                                  ?.copyWith(
-                                    color: AppColors.textSecondary,
-                                  ),
+                                  ?.copyWith(color: AppColors.textSecondary),
                             ),
                           ],
                         ),
@@ -214,7 +204,7 @@ class ProviderDetailScreen extends ConsumerWidget {
 
                   const SizedBox(height: 20),
 
-                  // Reviews Section
+                  // Reviews Section - MAKE IT IN WIDGET
                   if (reviewsCount > 0) ...[
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -268,17 +258,11 @@ class ProviderDetailScreen extends ConsumerWidget {
                                 children: [
                                   Text(
                                     '$reviewsCount review${reviewsCount > 1 ? 's' : ''}',
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: const TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
                                   ),
                                   const Text(
                                     'Tap to see all reviews',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: AppColors.textSecondary,
-                                    ),
+                                    style: TextStyle(fontSize: 12,color: AppColors.textSecondary),
                                   ),
                                 ],
                               ),
@@ -296,9 +280,7 @@ class ProviderDetailScreen extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
                       'Available Services',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                     ),
                   ),
 
@@ -340,9 +322,7 @@ class ProviderDetailScreen extends ConsumerWidget {
                                           style: Theme.of(context)
                                               .textTheme
                                               .titleMedium
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                              ?.copyWith(fontWeight: FontWeight.bold),
                                         ),
                                         const SizedBox(height: 4),
                                         Text(
@@ -350,9 +330,7 @@ class ProviderDetailScreen extends ConsumerWidget {
                                           style: Theme.of(context)
                                               .textTheme
                                               .bodySmall
-                                              ?.copyWith(
-                                                color: AppColors.textSecondary,
-                                              ),
+                                              ?.copyWith(color: AppColors.textSecondary),
                                         ),
                                         const SizedBox(height: 8),
                                         Row(
@@ -368,9 +346,7 @@ class ProviderDetailScreen extends ConsumerWidget {
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .bodySmall
-                                                  ?.copyWith(
-                                                    color: AppColors.textSecondary,
-                                                  ),
+                                                  ?.copyWith(color: AppColors.textSecondary),
                                             ),
                                           ],
                                         ),
@@ -379,10 +355,7 @@ class ProviderDetailScreen extends ConsumerWidget {
                                   ),
                                   Text(
                                     '₱${service.price.toStringAsFixed(0)}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleLarge
-                                        ?.copyWith(
+                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                           color: AppColors.primary,
                                           fontWeight: FontWeight.bold,
                                         ),
@@ -416,16 +389,9 @@ class ProviderDetailScreen extends ConsumerWidget {
                                         IconButton(
                                           onPressed: () {
                                             if (quantity > 1) {
-                                              ref.read(cartProvider.notifier).updateQuantity(
-                                                    provider.id,
-                                                    service.id,
-                                                    quantity - 1,
-                                                  );
+                                              ref.read(cartProvider.notifier).updateQuantity(provider.id,service.id,quantity - 1);
                                             } else {
-                                              ref.read(cartProvider.notifier).removeService(
-                                                    provider.id,
-                                                    service.id,
-                                                  );
+                                              ref.read(cartProvider.notifier).removeService(provider.id,service.id);
                                             }
                                           },
                                           icon: const Icon(Icons.remove_circle_outline),
@@ -433,20 +399,11 @@ class ProviderDetailScreen extends ConsumerWidget {
                                         ),
                                         Text(
                                           '$quantity',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleMedium
-                                              ?.copyWith(
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                          style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                                         ),
                                         IconButton(
                                           onPressed: () {
-                                            ref.read(cartProvider.notifier).updateQuantity(
-                                                  provider.id,
-                                                  service.id,
-                                                  quantity + 1,
-                                                );
+                                            ref.read(cartProvider.notifier).updateQuantity(provider.id,service.id,quantity + 1);
                                           },
                                           icon: const Icon(Icons.add_circle_outline),
                                           color: AppColors.primary,
@@ -492,11 +449,7 @@ class ProviderDetailScreen extends ConsumerWidget {
                       //   '/single-cart',
                       //   arguments: provider.id,
                       // );
-                      context.push(
-                        '/single-cart',
-                        extra: provider.id,
-                      );
-
+                      context.push('/single-cart',extra: provider.id);
                     },
                     child: Text('View Cart ($cartItemCount items)'),
                   ),
@@ -506,18 +459,5 @@ class ProviderDetailScreen extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  IconData _getCategoryIcon(String category) {
-    switch (category) {
-      case 'Aircon Services':
-        return Icons.ac_unit;
-      case 'Plumbing Services':
-        return Icons.plumbing;
-      case 'Electrical Services':
-        return Icons.electrical_services;
-      default:
-        return Icons.build;
-    }
   }
 }

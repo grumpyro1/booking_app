@@ -46,9 +46,7 @@ class FavoritesScreen extends ConsumerWidget {
                             ),
                           );
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                        ),
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                         child: const Text('Clear All'),
                       ),
                     ],

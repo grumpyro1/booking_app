@@ -1,8 +1,10 @@
 // lib/features/booking/data/models/booking_model.dart
 
 import 'package:booking_app/features/home/data/models/service_model.dart';
-
 import '../../../cart/data/models/cart_model.dart';
+
+
+// enum BookingListType { active, completed, cancelled }
 
 enum BookingStatus {
   pending,    // Waiting for provider to accept
@@ -28,6 +30,7 @@ class BookingModel {
   final DateTime createdAt;
   final String? notes;
   final String? cancellationReason;
+  final String paymentMethod; // Added payment method
 
   BookingModel({
     required this.id,
@@ -45,6 +48,7 @@ class BookingModel {
     required this.createdAt,
     this.notes,
     this.cancellationReason,
+    this.paymentMethod = 'cod', // Default to COD
   });
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
@@ -71,6 +75,7 @@ class BookingModel {
       createdAt: DateTime.parse(json['createdAt'] as String),
       notes: json['notes'] as String?,
       cancellationReason: json['cancellationReason'] as String?,
+      paymentMethod: json['paymentMethod'] as String? ?? 'cod',
     );
   }
 
@@ -96,6 +101,7 @@ class BookingModel {
       'createdAt': createdAt.toIso8601String(),
       'notes': notes,
       'cancellationReason': cancellationReason,
+      'paymentMethod': paymentMethod,
     };
   }
 
@@ -115,6 +121,7 @@ class BookingModel {
     DateTime? createdAt,
     String? notes,
     String? cancellationReason,
+    String? paymentMethod,
   }) {
     return BookingModel(
       id: id ?? this.id,
@@ -132,6 +139,7 @@ class BookingModel {
       createdAt: createdAt ?? this.createdAt,
       notes: notes ?? this.notes,
       cancellationReason: cancellationReason ?? this.cancellationReason,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
     );
   }
 
@@ -150,6 +158,19 @@ class BookingModel {
     }
   }
 
+  String get paymentMethodText {
+    switch (paymentMethod.toLowerCase()) {
+      case 'cod':
+        return 'Cash on Delivery';
+      case 'gcash':
+        return 'GCash';
+      case 'card':
+        return 'Credit/Debit Card';
+      default:
+        return paymentMethod;
+    }
+  }
+
   String get formattedDate {
     final months = [
       'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -158,4 +179,3 @@ class BookingModel {
     return '${months[scheduledDate.month - 1]} ${scheduledDate.day}, ${scheduledDate.year}';
   }
 }
-

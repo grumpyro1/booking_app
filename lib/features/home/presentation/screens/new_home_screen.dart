@@ -247,9 +247,7 @@ class HomeTabContent extends ConsumerWidget {
                 children: [
                   Text(
                     'Popular Providers',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   TextButton(
                     onPressed: () {
@@ -277,9 +275,7 @@ class HomeTabContent extends ConsumerWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (_) => ProviderDetailScreen(provider: provider),
-                        ),
+                        MaterialPageRoute(builder: (_) => ProviderDetailScreen(provider: provider)),
                       );
                     },
                     borderRadius: BorderRadius.circular(12),
@@ -307,22 +303,12 @@ class HomeTabContent extends ConsumerWidget {
                               children: [
                                 Text(
                                   provider.name,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   provider.category,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: AppColors.textSecondary,
-                                      ),
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                                 ),
                                 const SizedBox(height: 4),
                                 Row(
@@ -350,12 +336,7 @@ class HomeTabContent extends ConsumerWidget {
                                     const SizedBox(width: 4),
                                     Text(
                                       provider.address,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodySmall
-                                          ?.copyWith(
-                                            color: AppColors.textSecondary,
-                                          ),
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
                                     ),
                                   ],
                                 ),
