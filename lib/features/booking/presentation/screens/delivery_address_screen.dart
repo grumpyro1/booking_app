@@ -23,20 +23,27 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
   final _searchController = TextEditingController();
   final _notesController = TextEditingController();
   final _houseNumberController = TextEditingController();
+  final _searchFocusNode = FocusNode();
   
   LatLng _currentPosition = const LatLng(14.5547, 121.0244); // Default: Makati
   bool _isLoadingLocation = false;
+  bool _isLoadingAddress = false;
+  bool _isSearching = false;
   String _fullAddress = '';
   String _street = '';
   String _city = '';
   String _postalCode = '';
   
   final Set<Marker> _markers = {};
+  List<Location> _searchResults = [];
+  bool _showSearchResults = false;
+  bool _hasSelectedLocation = false;
 
   @override
   void initState() {
     super.initState();
     _initializeLocation();
+    _searchFocusNode.addListener(_onSearchFocusChange);
   }
 
   @override
@@ -44,13 +51,23 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
     _searchController.dispose();
     _notesController.dispose();
     _houseNumberController.dispose();
+    _searchFocusNode.dispose();
     _mapController?.dispose();
     super.dispose();
   }
 
+  void _onSearchFocusChange() {
+    if (!_searchFocusNode.hasFocus) {
+      Future.delayed(const Duration(milliseconds: 200), () {
+        if (mounted) {
+          setState(() => _showSearchResults = false);
+        }
+      });
+    }
+  }
+
   Future<void> _initializeLocation() async {
     if (widget.initialAddress != null) {
-      // Load saved address if available
       final lat = widget.initialAddress!['latitude'] as double?;
       final lng = widget.initialAddress!['longitude'] as double?;
       if (lat != null && lng != null) {
@@ -58,13 +75,15 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
         _fullAddress = widget.initialAddress!['fullAddress'] ?? '';
         _street = widget.initialAddress!['street'] ?? '';
         _city = widget.initialAddress!['city'] ?? '';
+        _searchController.text = _fullAddress;
         _notesController.text = widget.initialAddress!['notes'] ?? '';
+        _houseNumberController.text = widget.initialAddress!['houseNumber'] ?? '';
+        _hasSelectedLocation = true;
         _updateMarker(_currentPosition);
         return;
       }
     }
     
-    // Otherwise get current location
     await _getCurrentLocation();
   }
 
@@ -72,7 +91,6 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
     setState(() => _isLoadingLocation = true);
 
     try {
-      // Check permission
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
@@ -89,7 +107,6 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
         return;
       }
 
-      // Get current position
       final position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
@@ -100,15 +117,14 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
         _currentPosition = latLng;
       });
 
-      // Move camera and update address
       _mapController?.animateCamera(
         CameraUpdate.newCameraPosition(
           CameraPosition(target: latLng, zoom: 16),
         ),
       );
 
-      await _getAddressFromLatLng(latLng);
-      _updateMarker(latLng);
+      // Auto-select current location
+      await _selectLocation(latLng);
     } catch (e) {
       _showError('Failed to get location: $e');
     } finally {
@@ -137,7 +153,9 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
             place.postalCode,
           ].where((e) => e != null && e.isNotEmpty).join(', ');
           
-          _searchController.text = _fullAddress;
+          if (!_searchFocusNode.hasFocus) {
+            _searchController.text = _fullAddress;
+          }
         });
       }
     } catch (e) {
@@ -145,37 +163,34 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
     }
   }
 
-  Future<void> _searchAddress(String query) async {
-    if (query.isEmpty) return;
+  // Long press on map to select location
+  Future<void> _onMapLongPress(LatLng position) async {
+    await _selectLocation(position);
+  }
 
-    setState(() => _isLoadingLocation = true);
-
-    try {
-      final locations = await locationFromAddress(query);
-      if (locations.isNotEmpty) {
-        final location = locations.first;
-        final latLng = LatLng(location.latitude, location.longitude);
-
-        setState(() {
-          _currentPosition = latLng;
-        });
-
-        _mapController?.animateCamera(
-          CameraUpdate.newCameraPosition(
-            CameraPosition(target: latLng, zoom: 16),
-          ),
-        );
-
-        await _getAddressFromLatLng(latLng);
-        _updateMarker(latLng);
-      } else {
-        _showError('Address not found');
-      }
-    } catch (e) {
-      _showError('Failed to search address');
-    } finally {
-      setState(() => _isLoadingLocation = false);
+  // Tap on marker to re-center
+  void _onMarkerTap() {
+    if (_markers.isNotEmpty) {
+      final marker = _markers.first;
+      _mapController?.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(target: marker.position, zoom: 16),
+        ),
+      );
     }
+  }
+
+  Future<void> _selectLocation(LatLng position) async {
+    setState(() {
+      _currentPosition = position;
+      _isLoadingAddress = true;
+      _hasSelectedLocation = true;
+    });
+
+    _updateMarker(position);
+    await _getAddressFromLatLng(position);
+
+    setState(() => _isLoadingAddress = false);
   }
 
   void _updateMarker(LatLng position) {
@@ -187,25 +202,61 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
           position: position,
           draggable: true,
           onDragEnd: (newPosition) async {
-            setState(() => _currentPosition = newPosition);
-            await _getAddressFromLatLng(newPosition);
+            await _selectLocation(newPosition);
           },
+          onTap: _onMarkerTap,
           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
         ),
       );
     });
   }
 
-  void _onMapTap(LatLng position) async {
+  Future<void> _performSearch(String query) async {
+    if (query.isEmpty || query.length < 3) {
+      setState(() {
+        _searchResults = [];
+        _showSearchResults = false;
+      });
+      return;
+    }
+
     setState(() {
-      _currentPosition = position;
-      _isLoadingLocation = true;
+      _isSearching = true;
+      _showSearchResults = true;
     });
-    
-    await _getAddressFromLatLng(position);
-    _updateMarker(position);
-    
-    setState(() => _isLoadingLocation = false);
+
+    try {
+      final locations = await locationFromAddress(query);
+      
+      setState(() {
+        _searchResults = locations;
+        _isSearching = false;
+      });
+    } catch (e) {
+      print('Search error: $e');
+      setState(() {
+        _searchResults = [];
+        _isSearching = false;
+      });
+    }
+  }
+
+  Future<void> _selectSearchResult(Location location) async {
+    final latLng = LatLng(location.latitude, location.longitude);
+
+    setState(() {
+      _showSearchResults = false;
+    });
+
+    _searchFocusNode.unfocus();
+
+    _mapController?.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: latLng, zoom: 16),
+      ),
+    );
+
+    await _selectLocation(latLng);
   }
 
   void _showError(String message) {
@@ -218,8 +269,8 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
   }
 
   void _confirmAddress() {
-    if (_fullAddress.isEmpty) {
-      _showError('Please select a delivery address');
+    if (_fullAddress.isEmpty || !_hasSelectedLocation) {
+      _showError('Please select a delivery address by tapping on the map');
       return;
     }
 
@@ -234,7 +285,6 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
       'notes': _notesController.text.trim(),
     };
 
-    // Return address data to previous screen
     context.pop(addressData);
   }
 
@@ -255,61 +305,241 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
             ),
             onMapCreated: (controller) {
               _mapController = controller;
-              _updateMarker(_currentPosition);
+              if (widget.initialAddress != null) {
+                _updateMarker(_currentPosition);
+              }
             },
             markers: _markers,
-            onTap: _onMapTap,
+            onTap: (position) async {
+              // Single tap also works
+              await _selectLocation(position);
+            },
+            onLongPress: _onMapLongPress,
             myLocationEnabled: true,
             myLocationButtonEnabled: false,
             zoomControlsEnabled: false,
             mapToolbarEnabled: false,
           ),
 
-          // Search Bar at Top
+          // Instruction Banner (if no location selected)
+          if (!_hasSelectedLocation)
+            Positioned(
+              bottom: 450,
+              left: 16,
+              right: 16,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 10,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.touch_app,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Tap anywhere on the map to pin your delivery location',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // Loading Indicator
+          if (_isLoadingAddress)
+            Positioned(
+              top: _showSearchResults ? 320 : 80,
+              left: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.primary),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Getting address...',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // Search Bar with Results
           Positioned(
             top: 16,
             left: 16,
             right: 16,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 2),
+            child: Column(
+              children: [
+                // Search Input
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  hintText: 'Search address...',
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: _searchController.text.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() {});
-                          },
-                        )
-                      : null,
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
+                  child: TextField(
+                    controller: _searchController,
+                    focusNode: _searchFocusNode,
+                    decoration: InputDecoration(
+                      hintText: 'Search address (e.g., Abreeza Mall)',
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() {
+                                  _searchResults = [];
+                                  _showSearchResults = false;
+                                });
+                              },
+                            )
+                          : null,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                    ),
+                    onChanged: (value) {
+                      _performSearch(value);
+                    },
                   ),
                 ),
-                onSubmitted: _searchAddress,
-              ),
+
+                // Search Results Dropdown
+                if (_showSearchResults)
+                  Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    constraints: const BoxConstraints(maxHeight: 300),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: _isSearching
+                        ? const Padding(
+                            padding: EdgeInsets.all(20),
+                            child: Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
+                        : _searchResults.isEmpty
+                            ? Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Center(
+                                  child: Text(
+                                    'No results found',
+                                    style: TextStyle(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : ListView.separated(
+                                shrinkWrap: true,
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                itemCount: _searchResults.length,
+                                separatorBuilder: (context, index) => const Divider(height: 1),
+                                itemBuilder: (context, index) {
+                                  final location = _searchResults[index];
+                                  return ListTile(
+                                    leading: Icon(
+                                      Icons.location_on,
+                                      color: AppColors.primary,
+                                    ),
+                                    title: FutureBuilder<List<Placemark>>(
+                                      future: placemarkFromCoordinates(
+                                        location.latitude,
+                                        location.longitude,
+                                      ),
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                                          final place = snapshot.data!.first;
+                                          final address = [
+                                            place.name,
+                                            place.locality,
+                                            place.subAdministrativeArea,
+                                          ].where((e) => e != null && e.isNotEmpty).join(', ');
+                                          
+                                          return Text(
+                                            address,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          );
+                                        }
+                                        return Text(
+                                          '${location.latitude.toStringAsFixed(4)}, ${location.longitude.toStringAsFixed(4)}',
+                                          style: TextStyle(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    onTap: () => _selectSearchResult(location),
+                                  );
+                                },
+                              ),
+                  ),
+              ],
             ),
           ),
 
           // Current Location Button
           Positioned(
-            top: 80,
+            top: _showSearchResults ? 320 : 80,
             right: 16,
             child: FloatingActionButton.small(
               onPressed: _getCurrentLocation,
@@ -385,6 +615,17 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
                                       ?.copyWith(color: AppColors.textSecondary),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
+                                ),
+                              if (_fullAddress.isEmpty && !_isLoadingAddress)
+                                Text(
+                                  'Tap on map to select location',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: AppColors.textSecondary,
+                                        fontStyle: FontStyle.italic,
+                                      ),
                                 ),
                             ],
                           ),
