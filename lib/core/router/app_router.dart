@@ -1,5 +1,6 @@
 // lib/core/router/app_router.dart
 
+import 'package:booking_app/features/booking/presentation/screens/delivery_address_screen.dart';
 import 'package:booking_app/features/payment/presentation/screens/checkout_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -111,6 +112,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final bookingId = state.extra as String;
           return BookingSuccessScreen(bookingId: bookingId);
+        },
+      ),
+
+      // Delivery Address Route
+      GoRoute(
+        path: '/delivery-address',
+        builder: (context, state) {
+          final initialAddress = state.extra as Map<String, dynamic>?;
+          return DeliveryAddressScreen(initialAddress: initialAddress);
         },
       ),
     ],

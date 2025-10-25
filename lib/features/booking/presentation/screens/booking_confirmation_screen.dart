@@ -18,11 +18,11 @@ class BookingConfirmationScreen extends ConsumerStatefulWidget {
 
 class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _addressController = TextEditingController();
   final _notesController = TextEditingController();
   
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
   String _selectedTime = '09:00 AM';
+  Map<String, dynamic>? _selectedAddress;
 
   final List<String> _timeSlots = [
     '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
@@ -31,7 +31,6 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
 
   @override
   void dispose() {
-    _addressController.dispose();
     _notesController.dispose();
     super.dispose();
   }
@@ -50,8 +49,31 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
     }
   }
 
+  Future<void> _selectAddress() async {
+    final result = await context.push<Map<String, dynamic>>(
+      '/delivery-address',
+      extra: _selectedAddress,
+    );
+
+    if (result != null) {
+      setState(() {
+        _selectedAddress = result;
+      });
+    }
+  }
+
   void _proceedToCheckout() {
     if (!_formKey.currentState!.validate()) return;
+
+    if (_selectedAddress == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select delivery address'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
     final cart = ref.read(cartProvider)[widget.providerId];
     if (cart == null) {
@@ -71,7 +93,7 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
       'services': cart.items,
       'subtotal': cart.subtotal,
       'serviceFee': 50.0,
-      'serviceAddress': _addressController.text.trim(),
+      'deliveryAddress': _selectedAddress,
       'scheduledDate': _selectedDate,
       'scheduledTime': _selectedTime,
       'notes': _notesController.text.trim().isEmpty ? null : _notesController.text.trim(),
@@ -95,7 +117,7 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
     final total = cart.subtotal + serviceFee;
 
     return Scaffold(
-      appBar: AppBar( title: const Text('Confirm Booking')),
+      appBar: AppBar(title: const Text('Confirm Booking')),
       body: Form(
         key: _formKey,
         child: Column(
@@ -179,7 +201,10 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
-                                    ?.copyWith(color: AppColors.primary,fontWeight: FontWeight.bold),
+                                    ?.copyWith(
+                                      color: AppColors.primary,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -197,9 +222,9 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
 
                     const SizedBox(height: 24),
 
-                    // Service Address
+                    // Delivery Address Section
                     Text(
-                      'Service Address',
+                      'Delivery Address',
                       style: Theme.of(context)
                           .textTheme
                           .titleLarge
@@ -208,19 +233,121 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
 
                     const SizedBox(height: 12),
 
-                    TextFormField(
-                      controller: _addressController,
-                      maxLines: 3,
-                      decoration: const InputDecoration(
-                        hintText: 'Enter your complete address',
-                        prefixIcon: Icon(Icons.location_on_outlined),
+                    InkWell(
+                      onTap: _selectAddress,
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: _selectedAddress == null 
+                                ? Colors.red.withOpacity(0.5)
+                                : AppColors.border,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          color: _selectedAddress != null 
+                              ? AppColors.primary.withOpacity(0.05)
+                              : null,
+                        ),
+                        child: _selectedAddress == null
+                            ? Row(
+                                children: [
+                                  Icon(
+                                    Icons.add_location_alt_outlined,
+                                    color: AppColors.primary,
+                                    size: 28,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Add Delivery Address',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .titleMedium
+                                              ?.copyWith(
+                                                color: AppColors.primary,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                        ),
+                                        Text(
+                                          'Tap to select location on map',
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodySmall
+                                              ?.copyWith(
+                                                color: AppColors.textSecondary,
+                                              ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(Icons.chevron_right),
+                                ],
+                              )
+                            : Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Icons.location_on,
+                                    color: AppColors.primary,
+                                    size: 28,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        if (_selectedAddress!['houseNumber']?.isNotEmpty ?? false)
+                                          Text(
+                                            _selectedAddress!['houseNumber'],
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleMedium
+                                                ?.copyWith(fontWeight: FontWeight.bold),
+                                          ),
+                                        Text(
+                                          _selectedAddress!['fullAddress'] ?? '',
+                                          style: Theme.of(context).textTheme.bodyMedium,
+                                        ),
+                                        if (_selectedAddress!['notes']?.isNotEmpty ?? false)
+                                          Padding(
+                                            padding: const EdgeInsets.only(top: 4),
+                                            child: Text(
+                                              'Note: ${_selectedAddress!['notes']}',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodySmall
+                                                  ?.copyWith(
+                                                    color: AppColors.textSecondary,
+                                                    fontStyle: FontStyle.italic,
+                                                  ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  Column(
+                                    children: [
+                                      Icon(
+                                        Icons.edit_outlined,
+                                        color: AppColors.primary,
+                                        size: 20,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'Change',
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodySmall
+                                            ?.copyWith(color: AppColors.primary),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                       ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Please enter service address';
-                        }
-                        return null;
-                      },
                     ),
 
                     const SizedBox(height: 24),
