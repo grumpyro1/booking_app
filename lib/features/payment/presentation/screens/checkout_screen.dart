@@ -56,7 +56,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             services: widget.bookingDetails['services'] as List<CartItemModel>,
             subtotal: widget.bookingDetails['subtotal'],
             serviceFee: widget.bookingDetails['serviceFee'],
-            serviceAddress: widget.bookingDetails['serviceAddress'],
+            // serviceAddress: widget.bookingDetails['serviceAddress'],
+            deliveryAddress: widget.bookingDetails['deliveryAddress'] as Map<String, dynamic>, // Changed
             scheduledDate: widget.bookingDetails['scheduledDate'],
             scheduledTime: widget.bookingDetails['scheduledTime'],
             notes: widget.bookingDetails['notes'],

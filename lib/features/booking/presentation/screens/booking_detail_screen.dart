@@ -319,7 +319,7 @@ class BookingDetailScreen extends ConsumerWidget {
                     icon: Icons.location_on,
                     title: 'Service Address',
                     child: Text(
-                      booking.serviceAddress,
+                      booking.deliveryAddress['fullAddress'] ?? 'No address provided',
                       style: const TextStyle(fontSize: 16),
                     ),
                   ),

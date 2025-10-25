@@ -23,7 +23,9 @@ class BookingModel {
   final double subtotal;
   final double serviceFee;
   final double total;
-  final String serviceAddress;
+  // final String serviceAddress;
+  final Map<String, dynamic> deliveryAddress; // Changed from String to Map
+
   final DateTime scheduledDate;
   final String scheduledTime;
   final BookingStatus status;
@@ -41,7 +43,7 @@ class BookingModel {
     required this.subtotal,
     required this.serviceFee,
     required this.total,
-    required this.serviceAddress,
+    required this.deliveryAddress,
     required this.scheduledDate,
     required this.scheduledTime,
     required this.status,
@@ -50,6 +52,21 @@ class BookingModel {
     this.cancellationReason,
     this.paymentMethod = 'cod', // Default to COD
   });
+
+
+  // Helper getter to get full address string
+  String get fullAddress => deliveryAddress['fullAddress'] ?? '';
+  
+  // Helper getter to get house number
+  String get houseNumber => deliveryAddress['houseNumber'] ?? '';
+  
+  // Helper getter to get delivery notes
+  String get deliveryNotes => deliveryAddress['notes'] ?? '';
+
+  // Helper getter to get coordinates
+  double? get latitude => deliveryAddress['latitude'] as double?;
+  double? get longitude => deliveryAddress['longitude'] as double?;
+
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
     return BookingModel(
@@ -66,7 +83,8 @@ class BookingModel {
       subtotal: (json['subtotal'] as num).toDouble(),
       serviceFee: (json['serviceFee'] as num).toDouble(),
       total: (json['total'] as num).toDouble(),
-      serviceAddress: json['serviceAddress'] as String,
+      // serviceAddress: json['serviceAddress'] as String,
+      deliveryAddress: json['deliveryAddress'] as Map<String, dynamic>? ?? {}, // Changed
       scheduledDate: DateTime.parse(json['scheduledDate'] as String),
       scheduledTime: json['scheduledTime'] as String,
       status: BookingStatus.values.firstWhere(
@@ -94,7 +112,7 @@ class BookingModel {
       'subtotal': subtotal,
       'serviceFee': serviceFee,
       'total': total,
-      'serviceAddress': serviceAddress,
+      'serviceAddress': deliveryAddress,
       'scheduledDate': scheduledDate.toIso8601String(),
       'scheduledTime': scheduledTime,
       'status': status.toString().split('.').last,
@@ -114,7 +132,7 @@ class BookingModel {
     double? subtotal,
     double? serviceFee,
     double? total,
-    String? serviceAddress,
+    Map<String, dynamic>? deliveryAddress, 
     DateTime? scheduledDate,
     String? scheduledTime,
     BookingStatus? status,
@@ -132,7 +150,7 @@ class BookingModel {
       subtotal: subtotal ?? this.subtotal,
       serviceFee: serviceFee ?? this.serviceFee,
       total: total ?? this.total,
-      serviceAddress: serviceAddress ?? this.serviceAddress,
+      deliveryAddress: deliveryAddress ?? this.deliveryAddress,
       scheduledDate: scheduledDate ?? this.scheduledDate,
       scheduledTime: scheduledTime ?? this.scheduledTime,
       status: status ?? this.status,

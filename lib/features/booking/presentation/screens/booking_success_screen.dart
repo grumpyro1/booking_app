@@ -128,7 +128,7 @@ class BookingSuccessScreen extends ConsumerWidget {
                             context,
                             icon: Icons.location_on,
                             label: 'Location',
-                            value: booking.serviceAddress,
+                            value: booking.deliveryAddress['fullAddress'] ?? 'No address provided',
                           ),
 
                           const SizedBox(height: 16),

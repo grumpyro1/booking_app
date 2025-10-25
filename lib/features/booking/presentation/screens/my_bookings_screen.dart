@@ -279,7 +279,7 @@ class BookingCard extends ConsumerWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      booking.serviceAddress,
+                      booking.deliveryAddress['fullAddress'] ?? 'No address provided',
                       style: Theme.of(context).textTheme.bodyMedium,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

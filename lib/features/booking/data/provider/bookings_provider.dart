@@ -18,11 +18,11 @@ class BookingNotifier extends Notifier<List<BookingModel>> {
     required List<CartItemModel> services,
     required double subtotal,
     required double serviceFee,
-    required String serviceAddress,
+    required Map<String, dynamic> deliveryAddress, // Changed to Map
     required DateTime scheduledDate,
     required String scheduledTime,
     String? notes,
-    String paymentMethod = 'cod', // Added payment method parameter
+    String paymentMethod = 'cod',
   }) async {
     // Simulate API delay
     await Future.delayed(const Duration(seconds: 1));
@@ -36,7 +36,7 @@ class BookingNotifier extends Notifier<List<BookingModel>> {
       subtotal: subtotal,
       serviceFee: serviceFee,
       total: subtotal + serviceFee,
-      serviceAddress: serviceAddress,
+      deliveryAddress: deliveryAddress, // Changed
       scheduledDate: scheduledDate,
       scheduledTime: scheduledTime,
       status: BookingStatus.pending,
