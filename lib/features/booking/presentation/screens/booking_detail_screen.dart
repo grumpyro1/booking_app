@@ -318,9 +318,78 @@ class BookingDetailScreen extends ConsumerWidget {
                   _InfoSection(
                     icon: Icons.location_on,
                     title: 'Service Address',
-                    child: Text(
-                      booking.deliveryAddress['fullAddress'] ?? 'No address provided',
-                      style: const TextStyle(fontSize: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (booking.houseNumber.isNotEmpty) ...[
+                          Row(
+                            children: [
+                              Icon(Icons.home_outlined, size: 18, color: AppColors.primary),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  booking.houseNumber,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                        Text(
+                          booking.fullAddress.isNotEmpty 
+                              ? booking.fullAddress 
+                              : 'No address provided',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        if (booking.deliveryNotes.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: AppColors.primary.withOpacity(0.2),
+                              ),
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Icons.info_outline,
+                                  size: 18,
+                                  color: AppColors.primary,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Delivery Instructions',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.bold,
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        booking.deliveryNotes,
+                                        style: const TextStyle(fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
 
