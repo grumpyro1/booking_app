@@ -57,8 +57,7 @@ class BookingNotifier extends Notifier<List<BookingModel>> {
   // Get active bookings (not completed or cancelled)
   List<BookingModel> getActiveBookings() {
     return state.where((booking) {
-      return booking.status != BookingStatus.completed &&
-          booking.status != BookingStatus.cancelled;
+      return booking.status != BookingStatus.completed && booking.status != BookingStatus.cancelled;
     }).toList();
   }
 

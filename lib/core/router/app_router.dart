@@ -1,6 +1,5 @@
 // lib/core/router/app_router.dart
 
-import 'package:booking_app/features/booking/presentation/screens/delivery_address_screen.dart';
 import 'package:booking_app/features/payment/presentation/screens/checkout_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +11,8 @@ import '../../features/cart/presentation/screens/all_carts_screen.dart';
 import '../../features/cart/presentation/screens/single_cart_screen.dart';
 import '../../features/booking/presentation/screens/booking_confirmation_screen.dart';
 import '../../features/booking/presentation/screens/booking_success_screen.dart';
+import '../../features/booking/presentation/screens/delivery_address_screen.dart';
+import '../../features/booking/presentation/screens/manage_addresses_screen.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 
@@ -100,6 +101,16 @@ final routerProvider = Provider<GoRouter>((ref) {
           return BookingConfirmationScreen(providerId: providerId);
         },
       ),
+      
+      // Delivery Address Route
+      GoRoute(
+        path: '/delivery-address',
+        builder: (context, state) {
+          final initialAddress = state.extra as Map<String, dynamic>?;
+          return DeliveryAddressScreen(initialAddress: initialAddress);
+        },
+      ),
+      
       GoRoute(
         path: '/checkout',
         builder: (context, state) {
@@ -115,13 +126,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         },
       ),
 
-      // Delivery Address Route
+      // Add this route:
       GoRoute(
-        path: '/delivery-address',
-        builder: (context, state) {
-          final initialAddress = state.extra as Map<String, dynamic>?;
-          return DeliveryAddressScreen(initialAddress: initialAddress);
-        },
+        path: '/manage-addresses',
+        builder: (context, state) => const ManageAddressesScreen(),
       ),
     ],
   );

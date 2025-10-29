@@ -1,5 +1,7 @@
 // lib/features/booking/presentation/screens/delivery_address_screen.dart
 
+import 'package:booking_app/features/booking/data/provider/saved_address_provider.dart';
+import 'package:booking_app/features/booking/presentation/widgets/saved_addresses_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -8,6 +10,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../shared/widgets/button_widget.dart';
+import '../../data/models/saved_address_model.dart';
+import '../../../auth/data/provider/auth_provider.dart';
 
 class DeliveryAddressScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic>? initialAddress;
@@ -25,7 +29,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
   final _houseNumberController = TextEditingController();
   final _searchFocusNode = FocusNode();
   
-  LatLng _currentPosition = const LatLng(14.5547, 121.0244); // Default: Makati
+  LatLng _currentPosition = const LatLng(14.5547, 121.0244);
   bool _isLoadingLocation = false;
   bool _isLoadingAddress = false;
   bool _isSearching = false;
@@ -38,6 +42,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
   List<Location> _searchResults = [];
   bool _showSearchResults = false;
   bool _hasSelectedLocation = false;
+  bool _showSavedAddresses = false;
 
   @override
   void initState() {
@@ -67,6 +72,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
   }
 
   Future<void> _initializeLocation() async {
+    // Priority 1: Use passed initial address
     if (widget.initialAddress != null) {
       final lat = widget.initialAddress!['latitude'] as double?;
       final lng = widget.initialAddress!['longitude'] as double?;
@@ -80,10 +86,44 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
         _houseNumberController.text = widget.initialAddress!['houseNumber'] ?? '';
         _hasSelectedLocation = true;
         _updateMarker(_currentPosition);
+        
+        // Move camera to this location
+        _mapController?.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(target: _currentPosition, zoom: 16),
+          ),
+        );
         return;
       }
     }
     
+    // Priority 2: Use default saved address
+    final defaultAddress = ref.read(savedAddressProvider.notifier).getDefaultAddress();
+    if (defaultAddress != null) {
+      final latLng = LatLng(defaultAddress.latitude, defaultAddress.longitude);
+      
+      setState(() {
+        _currentPosition = latLng;
+        _fullAddress = defaultAddress.fullAddress;
+        _street = defaultAddress.street;
+        _city = defaultAddress.city;
+        _postalCode = defaultAddress.postalCode;
+        _searchController.text = defaultAddress.fullAddress;
+        _houseNumberController.text = defaultAddress.houseNumber;
+        _notesController.text = defaultAddress.notes ?? '';
+        _hasSelectedLocation = true;
+      });
+      
+      _updateMarker(latLng);
+      
+      // Move camera to default address
+      _mapController?.animateCamera(
+        CameraUpdate.newCameraPosition( CameraPosition(target: latLng, zoom: 16)),
+      );
+      return;
+    }
+    
+    // Priority 3: Use current GPS location
     await _getCurrentLocation();
   }
 
@@ -123,7 +163,6 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
         ),
       );
 
-      // Auto-select current location
       await _selectLocation(latLng);
     } catch (e) {
       _showError('Failed to get location: $e');
@@ -163,12 +202,10 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
     }
   }
 
-  // Long press on map to select location
   Future<void> _onMapLongPress(LatLng position) async {
     await _selectLocation(position);
   }
 
-  // Tap on marker to re-center
   void _onMarkerTap() {
     if (_markers.isNotEmpty) {
       final marker = _markers.first;
@@ -259,6 +296,31 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
     await _selectLocation(latLng);
   }
 
+  void _selectSavedAddress(SavedAddressModel address) {
+    final latLng = LatLng(address.latitude, address.longitude);
+
+    setState(() {
+      _currentPosition = latLng;
+      _fullAddress = address.fullAddress;
+      _street = address.street;
+      _city = address.city;
+      _postalCode = address.postalCode;
+      _searchController.text = address.fullAddress;
+      _houseNumberController.text = address.houseNumber;
+      _notesController.text = address.notes ?? '';
+      _hasSelectedLocation = true;
+      _showSavedAddresses = false;
+    });
+
+    _updateMarker(latLng);
+
+    _mapController?.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: latLng, zoom: 16),
+      ),
+    );
+  }
+
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -266,6 +328,141 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
         backgroundColor: Colors.red,
       ),
     );
+  }
+
+  Future<void> _showSaveAddressDialog() async {
+    if (!_hasSelectedLocation || _fullAddress.isEmpty) {
+      _showError('Please select a location first');
+      return;
+    }
+
+    final user = ref.read(authProvider).user;
+    if (user == null) {
+      _showError('User not found');
+      return;
+    }
+
+    // Check if address already saved
+    final addressExists = ref.read(savedAddressProvider.notifier).addressExists(
+          _currentPosition.latitude,
+          _currentPosition.longitude,
+        );
+
+    if (addressExists) {
+      _showError('This address is already saved');
+      return;
+    }
+
+    AddressType? selectedType = AddressType.home;
+    final labelController = TextEditingController();
+    bool setAsDefault = false;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Save Address'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _fullAddress,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text('Address Type'),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  children: AddressType.values.map((type) {
+                    final labels = {
+                      AddressType.home: 'Home 🏠',
+                      AddressType.work: 'Work 💼',
+                      AddressType.other: 'Other 📍',
+                    };
+                    return ChoiceChip(
+                      label: Text(labels[type]!),
+                      selected: selectedType == type,
+                      onSelected: (selected) {
+                        setDialogState(() => selectedType = type);
+                      },
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: labelController,
+                  decoration: InputDecoration(
+                    labelText: 'Label (optional)',
+                    hintText: selectedType == AddressType.home
+                        ? 'Home'
+                        : selectedType == AddressType.work
+                            ? 'Work'
+                            : 'My Address',
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('Set as default address'),
+                  value: setAsDefault,
+                  onChanged: (value) {
+                    setDialogState(() => setAsDefault = value ?? false);
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result == true) {
+      String label = labelController.text.trim();
+      if (label.isEmpty) {
+        label = selectedType == AddressType.home ? 'Home' : selectedType == AddressType.work ? 'Work' : 'My Address';
+      }
+
+      await ref.read(savedAddressProvider.notifier).saveAddress(
+            userId: user.id,
+            type: selectedType!,
+            label: label,
+            latitude: _currentPosition.latitude,
+            longitude: _currentPosition.longitude,
+            fullAddress: _fullAddress,
+            street: _street,
+            city: _city,
+            postalCode: _postalCode,
+            houseNumber: _houseNumberController.text.trim(),
+            notes: _notesController.text.trim(),
+            setAsDefault: setAsDefault,
+          );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Address saved successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    }
   }
 
   void _confirmAddress() {
@@ -290,10 +487,26 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final savedAddresses = ref.watch(savedAddressProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Delivery Address'),
         elevation: 0,
+        actions: [
+          if (savedAddresses.isNotEmpty)
+            IconButton(
+              icon: Icon(
+                _showSavedAddresses ? Icons.map : Icons.bookmark,
+              ),
+              onPressed: () {
+                setState(() {
+                  _showSavedAddresses = !_showSavedAddresses;
+                });
+              },
+              tooltip: 'Saved Addresses',
+            ),
+        ],
       ),
       body: Stack(
         children: [
@@ -311,7 +524,6 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
             },
             markers: _markers,
             onTap: (position) async {
-              // Single tap also works
               await _selectLocation(position);
             },
             onLongPress: _onMapLongPress,
@@ -321,8 +533,16 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
             mapToolbarEnabled: false,
           ),
 
-          // Instruction Banner (if no location selected)
-          if (!_hasSelectedLocation)
+          // Saved Addresses Panel
+          if (_showSavedAddresses && savedAddresses.isNotEmpty)
+            SavedAddressesPanel(
+              addresses: savedAddresses,
+              onAddressSelected: _selectSavedAddress,
+              onClose: () => setState(() => _showSavedAddresses = false),
+            ),
+
+          // Instruction Banner
+          if (!_hasSelectedLocation && !_showSavedAddresses)
             Positioned(
               bottom: 450,
               left: 16,
@@ -341,7 +561,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.touch_app,
                       color: Colors.white,
                       size: 24,
@@ -349,8 +569,10 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Tap anywhere on the map to pin your delivery location',
-                        style: TextStyle(
+                        savedAddresses.isNotEmpty
+                            ? 'Tap on map or select a saved address'
+                            : 'Tap anywhere on the map to pin your delivery location',
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -363,7 +585,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
             ),
 
           // Loading Indicator
-          if (_isLoadingAddress)
+          if (_isLoadingAddress && !_showSavedAddresses)
             Positioned(
               top: _showSearchResults ? 320 : 80,
               left: 16,
@@ -403,61 +625,15 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
               ),
             ),
 
-          // Search Bar with Results
-          Positioned(
-            top: 16,
-            left: 16,
-            right: 16,
-            child: Column(
-              children: [
-                // Search Input
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 10,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: TextField(
-                    controller: _searchController,
-                    focusNode: _searchFocusNode,
-                    decoration: InputDecoration(
-                      hintText: 'Search address (e.g., Abreeza Mall)',
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() {
-                                  _searchResults = [];
-                                  _showSearchResults = false;
-                                });
-                              },
-                            )
-                          : null,
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 14,
-                      ),
-                    ),
-                    onChanged: (value) {
-                      _performSearch(value);
-                    },
-                  ),
-                ),
-
-                // Search Results Dropdown
-                if (_showSearchResults)
+          // Search Bar
+          if (!_showSavedAddresses)
+            Positioned(
+              top: 16,
+              left: 16,
+              right: 16,
+              child: Column(
+                children: [
                   Container(
-                    margin: const EdgeInsets.only(top: 8),
-                    constraints: const BoxConstraints(maxHeight: 300),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
@@ -469,208 +645,270 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
                         ),
                       ],
                     ),
-                    child: _isSearching
-                        ? const Padding(
-                            padding: EdgeInsets.all(20),
-                            child: Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          )
-                        : _searchResults.isEmpty
-                            ? Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: Center(
-                                  child: Text(
-                                    'No results found',
-                                    style: TextStyle(
-                                      color: AppColors.textSecondary,
+                    child: TextField(
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
+                      decoration: InputDecoration(
+                        hintText: 'Search address (e.g., Abreeza Mall)',
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() {
+                                    _searchResults = [];
+                                    _showSearchResults = false;
+                                  });
+                                },
+                              )
+                            : null,
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 14,
+                        ),
+                      ),
+                      onChanged: (value) {
+                        _performSearch(value);
+                      },
+                    ),
+                  ),
+
+                  // Search Results Dropdown
+                  if (_showSearchResults)
+                    Container(
+                      margin: const EdgeInsets.only(top: 8),
+                      constraints: const BoxConstraints(maxHeight: 300),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: _isSearching
+                          ? const Padding(
+                              padding: EdgeInsets.all(20),
+                              child: Center(
+                                child: CircularProgressIndicator(),
+                              ),
+                            )
+                          : _searchResults.isEmpty
+                              ? Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: Center(
+                                    child: Text(
+                                      'No results found',
+                                      style: TextStyle(
+                                        color: AppColors.textSecondary,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              )
-                            : ListView.separated(
-                                shrinkWrap: true,
-                                padding: const EdgeInsets.symmetric(vertical: 8),
-                                itemCount: _searchResults.length,
-                                separatorBuilder: (context, index) => const Divider(height: 1),
-                                itemBuilder: (context, index) {
-                                  final location = _searchResults[index];
-                                  return ListTile(
-                                    leading: Icon(
-                                      Icons.location_on,
-                                      color: AppColors.primary,
-                                    ),
-                                    title: FutureBuilder<List<Placemark>>(
-                                      future: placemarkFromCoordinates(
-                                        location.latitude,
-                                        location.longitude,
+                                )
+                              : ListView.separated(
+                                  shrinkWrap: true,
+                                  padding: const EdgeInsets.symmetric(vertical: 8),
+                                  itemCount: _searchResults.length,
+                                  separatorBuilder: (context, index) => const Divider(height: 1),
+                                  itemBuilder: (context, index) {
+                                    final location = _searchResults[index];
+                                    return ListTile(
+                                      leading: Icon(
+                                        Icons.location_on,
+                                        color: AppColors.primary,
                                       ),
-                                      builder: (context, snapshot) {
-                                        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                                          final place = snapshot.data!.first;
-                                          final address = [
-                                            place.name,
-                                            place.locality,
-                                            place.subAdministrativeArea,
-                                          ].where((e) => e != null && e.isNotEmpty).join(', ');
-                                          
+                                      title: FutureBuilder<List<Placemark>>(
+                                        future: placemarkFromCoordinates(
+                                          location.latitude,
+                                          location.longitude,
+                                        ),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                                            final place = snapshot.data!.first;
+                                            final address = [
+                                              place.name,
+                                              place.locality,
+                                              place.subAdministrativeArea,
+                                            ].where((e) => e != null && e.isNotEmpty).join(', ');
+                                            
+                                            return Text(
+                                              address,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            );
+                                          }
                                           return Text(
-                                            address,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
+                                            '${location.latitude.toStringAsFixed(4)}, ${location.longitude.toStringAsFixed(4)}',
+                                            style: TextStyle(
+                                              color: AppColors.textSecondary,
+                                            ),
                                           );
-                                        }
-                                        return Text(
-                                          '${location.latitude.toStringAsFixed(4)}, ${location.longitude.toStringAsFixed(4)}',
-                                          style: TextStyle(
-                                            color: AppColors.textSecondary,
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                    onTap: () => _selectSearchResult(location),
-                                  );
-                                },
-                              ),
-                  ),
-              ],
+                                        },
+                                      ),
+                                      onTap: () => _selectSearchResult(location),
+                                    );
+                                  },
+                                ),
+                    ),
+                ],
+              ),
             ),
-          ),
 
           // Current Location Button
-          Positioned(
-            top: _showSearchResults ? 320 : 80,
-            right: 16,
-            child: FloatingActionButton.small(
-              onPressed: _getCurrentLocation,
-              backgroundColor: Colors.white,
-              child: _isLoadingLocation
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Icon(Icons.my_location, color: AppColors.primary),
+          if (!_showSavedAddresses)
+            Positioned(
+              top: _showSearchResults ? 320 : 80,
+              right: 16,
+              child: FloatingActionButton.small(
+                onPressed: _getCurrentLocation,
+                backgroundColor: Colors.white,
+                child: _isLoadingLocation
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Icon(Icons.my_location, color: AppColors.primary),
+              ),
             ),
-          ),
 
           // Address Details Bottom Sheet
-          DraggableScrollableSheet(
-            initialChildSize: 0.35,
-            minChildSize: 0.35,
-            maxChildSize: 0.7,
-            builder: (context, scrollController) {
-              return Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 10,
-                      offset: Offset(0, -2),
-                    ),
-                  ],
-                ),
-                child: ListView(
-                  controller: scrollController,
-                  padding: const EdgeInsets.all(20),
-                  children: [
-                    // Drag Handle
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(2),
-                        ),
+          if (!_showSavedAddresses)
+            DraggableScrollableSheet(
+              initialChildSize: 0.35,
+              minChildSize: 0.35,
+              maxChildSize: 0.7,
+              builder: (context, scrollController) {
+                return Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 10,
+                        offset: Offset(0, -2),
                       ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // Address Header
-                    Row(
-                      children: [
-                        Icon(Icons.location_on, color: AppColors.primary, size: 28),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Delivery Location',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleMedium
-                                    ?.copyWith(fontWeight: FontWeight.bold),
-                              ),
-                              if (_fullAddress.isNotEmpty)
-                                Text(
-                                  _fullAddress,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(color: AppColors.textSecondary),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              if (_fullAddress.isEmpty && !_isLoadingAddress)
-                                Text(
-                                  'Tap on map to select location',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .bodySmall
-                                      ?.copyWith(
-                                        color: AppColors.textSecondary,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                ),
-                            ],
+                    ],
+                  ),
+                  child: ListView(
+                    controller: scrollController,
+                    padding: const EdgeInsets.all(20),
+                    children: [
+                      // Drag Handle
+                      Center(
+                        child: Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(2),
                           ),
                         ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    // House/Unit Number
-                    TextFormField(
-                      controller: _houseNumberController,
-                      decoration: const InputDecoration(
-                        labelText: 'House/Unit Number',
-                        hintText: 'e.g., Unit 123, Building A',
-                        prefixIcon: Icon(Icons.home_outlined),
                       ),
-                    ),
 
-                    const SizedBox(height: 16),
+                      const SizedBox(height: 20),
 
-                    // Delivery Notes
-                    TextFormField(
-                      controller: _notesController,
-                      maxLines: 3,
-                      decoration: const InputDecoration(
-                        labelText: 'Delivery Instructions (Optional)',
-                        hintText: 'e.g., Ring doorbell, leave at gate',
-                        prefixIcon: Icon(Icons.note_outlined),
-                        alignLabelWithHint: true,
+                      // Address Header
+                      Row(
+                        children: [
+                          Icon(Icons.location_on, color: AppColors.primary, size: 28),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Delivery Location',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                ),
+                                if (_fullAddress.isNotEmpty)
+                                  Text(
+                                    _fullAddress,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(color: AppColors.textSecondary),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                if (_fullAddress.isEmpty && !_isLoadingAddress)
+                                  Text(
+                                    'Tap on map to select location',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: AppColors.textSecondary,
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
 
-                    const SizedBox(height: 24),
+                      const SizedBox(height: 20),
 
-                    // Confirm Button
-                    ButtonWidget(
-                      label: 'Confirm Address',
-                      onPressed: _confirmAddress,
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
+                      // House/Unit Number
+                      TextFormField(
+                        controller: _houseNumberController,
+                        decoration: const InputDecoration(
+                          labelText: 'House/Unit Number',
+                          hintText: 'e.g., Unit 123, Building A',
+                          prefixIcon: Icon(Icons.home_outlined),
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Delivery Notes
+                      TextFormField(
+                        controller: _notesController,
+                        maxLines: 3,
+                        decoration: const InputDecoration(
+                          labelText: 'Delivery Instructions (Optional)',
+                          hintText: 'e.g., Ring doorbell, leave at gate',
+                          prefixIcon: Icon(Icons.note_outlined),
+                          alignLabelWithHint: true,
+                        ),
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      // Save Address Button
+                      if (_hasSelectedLocation && _fullAddress.isNotEmpty)
+                        OutlinedButton.icon(
+                          onPressed: _showSaveAddressDialog,
+                          icon: const Icon(Icons.bookmark_add_outlined),
+                          label: const Text('Save this address'),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+
+                      if (_hasSelectedLocation && _fullAddress.isNotEmpty)
+                        const SizedBox(height: 12),
+
+                      // Confirm Button
+                      ButtonWidget(
+                        label: 'Confirm Address',
+                        onPressed: _confirmAddress,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
         ],
       ),
     );

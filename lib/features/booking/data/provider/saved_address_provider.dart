@@ -26,9 +26,16 @@ class SavedAddressNotifier extends Notifier<List<SavedAddressModel>> {
   }) async {
     await Future.delayed(const Duration(milliseconds: 500));
 
-    // If setting as default, unset others
-    if (setAsDefault) {
-      state = state.map((addr) => addr.copyWith(isDefault: false)).toList();
+    // Check if this is the first address
+    final isFirstAddress = state.isEmpty;
+    
+    // Determine if this should be default
+    final shouldBeDefault = setAsDefault || isFirstAddress;
+
+    // If setting as default, unset others first
+    List<SavedAddressModel> updatedState = state;
+    if (shouldBeDefault && state.isNotEmpty) {
+      updatedState = state.map((addr) => addr.copyWith(isDefault: false)).toList();
     }
 
     final newAddress = SavedAddressModel(
@@ -44,11 +51,11 @@ class SavedAddressNotifier extends Notifier<List<SavedAddressModel>> {
       postalCode: postalCode,
       houseNumber: houseNumber,
       notes: notes,
-      isDefault: setAsDefault || state.isEmpty, // First address is default
+      isDefault: shouldBeDefault,
       createdAt: DateTime.now(),
     );
 
-    state = [...state, newAddress];
+    state = [...updatedState, newAddress];
   }
 
   // Update an existing address

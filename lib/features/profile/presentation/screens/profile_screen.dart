@@ -3,6 +3,7 @@
 import 'package:booking_app/features/booking/data/provider/bookings_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/data/provider/auth_provider.dart';
 import '../../../booking/data/models/booking_model.dart';
@@ -168,9 +169,7 @@ class ProfileScreen extends ConsumerWidget {
               title: 'Saved Addresses',
               subtitle: 'Manage your addresses',
               onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Saved Addresses - Coming soon')),
-                );
+                context.push('/manage-addresses');
               },
             ),
 
