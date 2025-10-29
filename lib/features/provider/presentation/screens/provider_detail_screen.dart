@@ -19,9 +19,7 @@ class ProviderDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final providerServices = mockServices
-        .where((service) => service.providerId == provider.id)
-        .toList();
+    final providerServices = mockServices.where((service) => service.providerId == provider.id).toList();
 
     final cart = ref.watch(cartProvider)[provider.id];
     final cartItemCount = cart?.totalItems ?? 0;

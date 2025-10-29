@@ -27,16 +27,19 @@ import '../../core/constants/mock_providers_data.dart';
 class ScaffoldWithNavBar extends StatelessWidget {
   final Widget child;
   final int selectedIndex;
+  final PreferredSizeWidget? appBar;
 
   const ScaffoldWithNavBar({
     super.key,
     required this.child,
     required this.selectedIndex,
+    this.appBar,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: appBar,
       body: child,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: selectedIndex,
@@ -46,13 +49,13 @@ class ScaffoldWithNavBar extends StatelessWidget {
               context.go('/home');
               break;
             case 1:
-              context.go('/home/search');
+              context.go('/search');
               break;
             case 2:
-              context.go('/home/bookings');
+              context.go('/bookings');
               break;
             case 3:
-              context.go('/home/profile');
+              context.go('/profile');
               break;
           }
         },
@@ -151,11 +154,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           int selectedIndex = 0;
           final location = state.matchedLocation;
           
-          if (location.startsWith('/home/search')) {
+          if (location == '/search') {
             selectedIndex = 1;
-          } else if (location.startsWith('/home/bookings')) {
+          } else if (location == '/bookings') {
             selectedIndex = 2;
-          } else if (location.startsWith('/home/profile')) {
+          } else if (location == '/profile') {
             selectedIndex = 3;
           }
 
@@ -173,19 +176,19 @@ final routerProvider = Provider<GoRouter>((ref) {
 
           // Search Tab
           GoRoute(
-            path: '/home/search',
+            path: '/search',
             builder: (context, state) => const SearchScreen(),
           ),
 
           // Bookings Tab
           GoRoute(
-            path: '/home/bookings',
+            path: '/bookings',
             builder: (context, state) => const MyBookingsScreen(),
           ),
 
           // Profile Tab
           GoRoute(
-            path: '/home/profile',
+            path: '/profile',
             builder: (context, state) => const ProfileScreen(),
           ),
         ],
