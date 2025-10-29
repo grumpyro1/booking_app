@@ -60,7 +60,8 @@ class ProviderDetailScreen extends ConsumerWidget {
                     //   '/single-cart',
                     //   arguments: provider.id,
                     // );
-                    context.push('/single-cart',extra: provider.id);
+                    // context.push('/single-cart',extra: provider.id);
+                    context.push('/single-cart/${provider.id}');
                   },
                 ),
                 Positioned(
@@ -449,7 +450,9 @@ class ProviderDetailScreen extends ConsumerWidget {
                       //   '/single-cart',
                       //   arguments: provider.id,
                       // );
-                      context.push('/single-cart',extra: provider.id);
+                      // context.push('/single-cart',extra: provider.id);
+                      context.push('/single-cart/${provider.id}');
+
                     },
                     child: Text('View Cart ($cartItemCount items)'),
                   ),

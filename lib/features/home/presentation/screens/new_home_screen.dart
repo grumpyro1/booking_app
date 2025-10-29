@@ -1,71 +1,13 @@
-// lib/features/home/presentation/screens/new_home_screen.dart
+// lib/features/home/presentation/screens/home_tab_content.dart
 
-import 'package:booking_app/features/provider/presentation/screens/provider_detail_screen.dart';
 import 'package:booking_app/shared/widgets/category_icon_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_riverpod/legacy.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/mock_providers_data.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../auth/data/provider/auth_provider.dart';
 import '../../../cart/data/providers/cart_provider.dart';
-import '../../../booking/presentation/screens/my_bookings_screen.dart';
-import '../../../search/presentation/screens/search_screen.dart';
-import '../../../profile/presentation/screens/profile_screen.dart';
-
-final selectedIndexProvider = StateProvider<int>((ref) => 0);
-
-class NewHomeScreen extends ConsumerWidget {
-  const NewHomeScreen({super.key});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final selectedIndex = ref.watch(selectedIndexProvider);
-
-    final List<Widget> pages = [
-       HomeTabContent(),
-       SearchScreen(),
-       MyBookingsScreen(),
-       ProfileScreen(),
-    ];
-
-    return Scaffold(
-      body: pages[selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: selectedIndex,
-        onTap: (index) {
-          ref.read(selectedIndexProvider.notifier).state = index;
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textSecondary,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search_outlined),
-            activeIcon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today_outlined),
-            activeIcon: Icon(Icons.calendar_today),
-            label: 'Bookings',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class HomeTabContent extends ConsumerWidget {
   const HomeTabContent({super.key});
@@ -85,7 +27,6 @@ class HomeTabContent extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.shopping_cart_outlined),
                 onPressed: () {
-                  // Navigator.pushNamed(context, '/all-carts');
                   context.push('/all-carts');
                 },
               ),
@@ -154,7 +95,7 @@ class HomeTabContent extends ConsumerWidget {
                   TextField(
                     readOnly: true,
                     onTap: () {
-                      ref.read(selectedIndexProvider.notifier).state = 1;
+                      context.go('/home/search');
                     },
                     decoration: InputDecoration(
                       hintText: 'Search service providers...',
@@ -173,7 +114,7 @@ class HomeTabContent extends ConsumerWidget {
 
             const SizedBox(height: 20),
 
-            // Categories Section (Horizontal Row)
+            // Categories Section
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
@@ -198,12 +139,7 @@ class HomeTabContent extends ConsumerWidget {
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     child: InkWell(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ProviderDetailScreen(provider: provider),
-                          ),
-                        );
+                        context.push('/provider/${provider.id}');
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Column(
@@ -247,11 +183,14 @@ class HomeTabContent extends ConsumerWidget {
                 children: [
                   Text(
                     'Popular Providers',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                    style: Theme.of(context)
+                        .textTheme
+                        .titleLarge
+                        ?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   TextButton(
                     onPressed: () {
-                      ref.read(selectedIndexProvider.notifier).state = 1;
+                      context.go('/home/search');
                     },
                     child: const Text('See All'),
                   ),
@@ -273,10 +212,7 @@ class HomeTabContent extends ConsumerWidget {
                   margin: const EdgeInsets.only(bottom: 16),
                   child: InkWell(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => ProviderDetailScreen(provider: provider)),
-                      );
+                      context.push('/provider/${provider.id}');
                     },
                     borderRadius: BorderRadius.circular(12),
                     child: Padding(
@@ -303,12 +239,14 @@ class HomeTabContent extends ConsumerWidget {
                               children: [
                                 Text(
                                   provider.name,
-                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                                  style: Theme.of(context) .textTheme.titleMedium
+                                      ?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   provider.category,
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(color: AppColors.textSecondary),
                                 ),
                                 const SizedBox(height: 4),
                                 Row(

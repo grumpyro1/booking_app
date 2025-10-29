@@ -70,7 +70,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
       if (mounted) {
         // Navigate to success screen
-        context.pushReplacement('/booking-success', extra: booking.id);
+        // context.pushReplacement('/booking-success', extra: booking.id);
+        context.pushReplacement('/booking-success/${booking.id}');
       }
     } catch (e) {
       if (mounted) {

@@ -1,20 +1,90 @@
 // lib/core/router/app_router.dart
 
-import 'package:booking_app/features/payment/presentation/screens/checkout_screen.dart';
+import 'package:booking_app/core/theme/app_colors.dart';
+import 'package:booking_app/features/home/presentation/screens/new_home_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/data/provider/auth_provider.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
-import '../../features/home/presentation/screens/new_home_screen.dart';
+import '../../features/search/presentation/screens/search_screen.dart';
+import '../../features/booking/presentation/screens/my_bookings_screen.dart';
+import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/cart/presentation/screens/all_carts_screen.dart';
 import '../../features/cart/presentation/screens/single_cart_screen.dart';
 import '../../features/booking/presentation/screens/booking_confirmation_screen.dart';
 import '../../features/booking/presentation/screens/booking_success_screen.dart';
 import '../../features/booking/presentation/screens/delivery_address_screen.dart';
 import '../../features/booking/presentation/screens/manage_addresses_screen.dart';
+import '../../features/payment/presentation/screens/checkout_screen.dart';
+import '../../features/provider/presentation/screens/provider_detail_screen.dart';
 import '../../features/splash/presentation/screens/splash_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
+import '../../core/constants/mock_providers_data.dart';
+
+// Navigation Shell (Bottom Nav Container)
+class ScaffoldWithNavBar extends StatelessWidget {
+  final Widget child;
+  final int selectedIndex;
+
+  const ScaffoldWithNavBar({
+    super.key,
+    required this.child,
+    required this.selectedIndex,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: child,
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: selectedIndex,
+        onTap: (index) {
+          switch (index) {
+            case 0:
+              context.go('/home');
+              break;
+            case 1:
+              context.go('/home/search');
+              break;
+            case 2:
+              context.go('/home/bookings');
+              break;
+            case 3:
+              context.go('/home/profile');
+              break;
+          }
+        },
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: AppColors.primary,
+        unselectedItemColor: AppColors.textSecondary,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search_outlined),
+            activeIcon: Icon(Icons.search),
+            label: 'Search',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today_outlined),
+            activeIcon: Icon(Icons.calendar_today),
+            label: 'Bookings',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
@@ -74,34 +144,88 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const RegisterScreen(),
       ),
 
-      // Main Routes
-      GoRoute(
-        path: '/home',
-        builder: (context, state) => const NewHomeScreen(),
+      // Main App Shell (with Bottom Navigation)
+      ShellRoute(
+        builder: (context, state, child) {
+          // Determine selected index based on current route
+          int selectedIndex = 0;
+          final location = state.matchedLocation;
+          
+          if (location.startsWith('/home/search')) {
+            selectedIndex = 1;
+          } else if (location.startsWith('/home/bookings')) {
+            selectedIndex = 2;
+          } else if (location.startsWith('/home/profile')) {
+            selectedIndex = 3;
+          }
+
+          return ScaffoldWithNavBar(
+            selectedIndex: selectedIndex,
+            child: child,
+          );
+        },
+        routes: [
+          // Home Tab
+          GoRoute(
+            path: '/home',
+            builder: (context, state) => const HomeTabContent(),
+          ),
+
+          // Search Tab
+          GoRoute(
+            path: '/home/search',
+            builder: (context, state) => const SearchScreen(),
+          ),
+
+          // Bookings Tab
+          GoRoute(
+            path: '/home/bookings',
+            builder: (context, state) => const MyBookingsScreen(),
+          ),
+
+          // Profile Tab
+          GoRoute(
+            path: '/home/profile',
+            builder: (context, state) => const ProfileScreen(),
+          ),
+        ],
       ),
 
-      // Cart Routes
+      // Provider Detail (Full Screen - No Bottom Nav)
+      GoRoute(
+        path: '/provider/:id',
+        builder: (context, state) {
+          final providerId = state.pathParameters['id']!;
+          final provider = mockProviders.firstWhere(
+            (p) => p.id == providerId,
+            orElse: () => mockProviders.first,
+          );
+          return ProviderDetailScreen(provider: provider);
+        },
+      ),
+
+      // Cart Routes (Full Screen)
       GoRoute(
         path: '/all-carts',
         builder: (context, state) => const AllCartsScreen(),
       ),
       GoRoute(
-        path: '/single-cart',
+        path: '/single-cart/:providerId',
         builder: (context, state) {
-          final providerId = state.extra as String;
+          final providerId = state.pathParameters['providerId']!;
           return SingleCartScreen(providerId: providerId);
         },
       ),
 
-      // Booking Routes
+      // Booking Routes (Full Screen)
       GoRoute(
-        path: '/booking-confirmation',
+        path: '/booking-confirmation/:providerId',
         builder: (context, state) {
-          final providerId = state.extra as String;
+          final providerId = state.pathParameters['providerId']!;
           return BookingConfirmationScreen(providerId: providerId);
         },
       ),
-      
+
       // Delivery Address Route
       GoRoute(
         path: '/delivery-address',
@@ -110,7 +234,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           return DeliveryAddressScreen(initialAddress: initialAddress);
         },
       ),
-      
+
+      // Manage Saved Addresses Route
+      GoRoute(
+        path: '/manage-addresses',
+        builder: (context, state) => const ManageAddressesScreen(),
+      ),
+
+      // Checkout Route
       GoRoute(
         path: '/checkout',
         builder: (context, state) {
@@ -118,18 +249,14 @@ final routerProvider = Provider<GoRouter>((ref) {
           return CheckoutScreen(bookingDetails: bookingDetails);
         },
       ),
+
+      // Booking Success Route
       GoRoute(
-        path: '/booking-success',
+        path: '/booking-success/:bookingId',
         builder: (context, state) {
-          final bookingId = state.extra as String;
+          final bookingId = state.pathParameters['bookingId']!;
           return BookingSuccessScreen(bookingId: bookingId);
         },
-      ),
-
-      // Add this route:
-      GoRoute(
-        path: '/manage-addresses',
-        builder: (context, state) => const ManageAddressesScreen(),
       ),
     ],
   );

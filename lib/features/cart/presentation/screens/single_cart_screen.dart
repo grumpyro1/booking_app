@@ -431,10 +431,11 @@ class SingleCartScreen extends ConsumerWidget {
                               //   '/booking-confirmation',
                               //   arguments: providerId,
                               // );
-                              context.push(
-                                '/booking-confirmation',
-                                extra: providerId,
-                              );
+                              // context.push(
+                              //   '/booking-confirmation',
+                              //   extra: providerId,
+                              // );
+                              context.push('/booking-confirmation/$providerId');
                             },
                             child: const Text('Book Now'),
                           ),

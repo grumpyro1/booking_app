@@ -267,10 +267,10 @@ class BookingSuccessScreen extends ConsumerWidget {
                           //   '/home',
                           //   (route) => false,
                           // );
-                          context.go('/home');
+                          context.go('/home/bookings');
 
                           // Switch to bookings tab
-                          ref.read(selectedIndexProvider.notifier).state = 1;
+                          // ref.read(selectedIndexProvider.notifier).state = 1;
                         },
                         child: const Text('View My Bookings'),
                       ),

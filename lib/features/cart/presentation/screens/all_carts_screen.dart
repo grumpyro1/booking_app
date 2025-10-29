@@ -113,7 +113,9 @@ class AllCartsScreen extends ConsumerWidget {
                         //   '/single-cart',
                         //   arguments: providerId,
                         // );
-                        context.push('/single-cart', extra: providerId);
+                        // context.push('/single-cart', extra: providerId);
+                        context.push('/single-cart/$providerId');
+
                       },
                       borderRadius: BorderRadius.circular(12),
                       child: Padding(
@@ -257,7 +259,8 @@ class AllCartsScreen extends ConsumerWidget {
                                   //   '/single-cart',
                                   //   arguments: providerId,
                                   // );
-                                context.push('/single-cart', extra: providerId);
+                                // context.push('/single-cart', extra: providerId);
+                                context.push('/single-cart/$providerId');
                                 },
                                 child: const Text('View Cart'),
                               ),
