@@ -1,4 +1,4 @@
-// lib/features/booking/data/providers/saved_address_provider.dart
+// lib/features/booking/data/provider/saved_address_provider.dart
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/saved_address_model.dart';
@@ -56,18 +56,31 @@ class SavedAddressNotifier extends Notifier<List<SavedAddressModel>> {
     );
 
     state = [...updatedState, newAddress];
+    print('Address saved. Total addresses: ${state.length}');
   }
 
   // Update an existing address
   Future<void> updateAddress(String addressId, SavedAddressModel updatedAddress) async {
+    print('SavedAddressNotifier.updateAddress called');
+    print('Address ID: $addressId');
+    print('Updated address: ${updatedAddress.toDeliveryAddress()}');
+    print('Current state before update: ${state.map((a) => a.id).toList()}');
+    
     await Future.delayed(const Duration(milliseconds: 500));
 
-    state = state.map((addr) {
+    final newState = state.map((addr) {
       if (addr.id == addressId) {
+        print('Found matching address, updating...');
         return updatedAddress;
       }
       return addr;
     }).toList();
+
+    print('New state: ${newState.map((a) => '${a.id}: ${a.fullAddress}').toList()}');
+    
+    state = newState;
+    
+    print('State updated. Verification: ${state.firstWhere((a) => a.id == addressId).fullAddress}');
   }
 
   // Delete an address
@@ -83,6 +96,8 @@ class SavedAddressNotifier extends Notifier<List<SavedAddressModel>> {
         ...state.skip(1),
       ];
     }
+    
+    print('Address deleted. Total addresses: ${state.length}');
   }
 
   // Set an address as default
@@ -92,6 +107,8 @@ class SavedAddressNotifier extends Notifier<List<SavedAddressModel>> {
     state = state.map((addr) {
       return addr.copyWith(isDefault: addr.id == addressId);
     }).toList();
+    
+    print('Default address updated to: ${state.firstWhere((a) => a.isDefault).label}');
   }
 
   // Get all saved addresses

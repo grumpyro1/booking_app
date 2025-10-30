@@ -1,8 +1,7 @@
 // lib/core/router/app_router.dart
 
-import 'package:booking_app/core/theme/app_colors.dart';
+import 'package:booking_app/core/layout/scaffold_with_nav_bar.dart';
 import 'package:booking_app/features/home/presentation/screens/new_home_screen.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../features/auth/data/provider/auth_provider.dart';
@@ -24,70 +23,6 @@ import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../core/constants/mock_providers_data.dart';
 
 // Navigation Shell (Bottom Nav Container)
-class ScaffoldWithNavBar extends StatelessWidget {
-  final Widget child;
-  final int selectedIndex;
-  final PreferredSizeWidget? appBar;
-
-  const ScaffoldWithNavBar({
-    super.key,
-    required this.child,
-    required this.selectedIndex,
-    this.appBar,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: appBar,
-      body: child,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: selectedIndex,
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              context.go('/home');
-              break;
-            case 1:
-              context.go('/search');
-              break;
-            case 2:
-              context.go('/bookings');
-              break;
-            case 3:
-              context.go('/profile');
-              break;
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textSecondary,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search_outlined),
-            activeIcon: Icon(Icons.search),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today_outlined),
-            activeIcon: Icon(Icons.calendar_today),
-            label: 'Bookings',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
@@ -171,7 +106,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           // Home Tab
           GoRoute(
             path: '/home',
-            builder: (context, state) => const HomeTabContent(),
+            builder: (context, state) => const HomeScreen(),
           ),
 
           // Search Tab

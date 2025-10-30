@@ -3,6 +3,7 @@
 import 'package:booking_app/features/provider/presentation/screens/provider_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/mock_providers_data.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../favorites/data/providers/favorites_provider.dart';
@@ -85,7 +86,8 @@ class FavoritesScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: () => Navigator.pop(context),
+                    // onPressed: () => Navigator.pop(context),
+                    onPressed: () => context.go('/home'),
                     child: const Text('Browse Providers'),
                   ),
                 ],

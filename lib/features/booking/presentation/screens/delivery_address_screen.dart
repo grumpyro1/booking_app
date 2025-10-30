@@ -43,12 +43,13 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
   bool _showSearchResults = false;
   bool _hasSelectedLocation = false;
   bool _showSavedAddresses = false;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _initializeLocation();
     _searchFocusNode.addListener(_onSearchFocusChange);
+    // Don't initialize location here, wait for map to be created
   }
 
   @override
@@ -72,19 +73,26 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
   }
 
   Future<void> _initializeLocation() async {
+    if (_isInitialized) return;
+    _isInitialized = true;
+
     // Priority 1: Use passed initial address
     if (widget.initialAddress != null) {
       final lat = widget.initialAddress!['latitude'] as double?;
       final lng = widget.initialAddress!['longitude'] as double?;
       if (lat != null && lng != null) {
-        _currentPosition = LatLng(lat, lng);
-        _fullAddress = widget.initialAddress!['fullAddress'] ?? '';
-        _street = widget.initialAddress!['street'] ?? '';
-        _city = widget.initialAddress!['city'] ?? '';
-        _searchController.text = _fullAddress;
-        _notesController.text = widget.initialAddress!['notes'] ?? '';
-        _houseNumberController.text = widget.initialAddress!['houseNumber'] ?? '';
-        _hasSelectedLocation = true;
+        setState(() {
+          _currentPosition = LatLng(lat, lng);
+          _fullAddress = widget.initialAddress!['fullAddress'] ?? '';
+          _street = widget.initialAddress!['street'] ?? '';
+          _city = widget.initialAddress!['city'] ?? '';
+          _postalCode = widget.initialAddress!['postalCode'] ?? '';
+          _searchController.text = _fullAddress;
+          _notesController.text = widget.initialAddress!['notes'] ?? '';
+          _houseNumberController.text = widget.initialAddress!['houseNumber'] ?? '';
+          _hasSelectedLocation = true;
+        });
+        
         _updateMarker(_currentPosition);
         
         // Move camera to this location
@@ -118,7 +126,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
       
       // Move camera to default address
       _mapController?.animateCamera(
-        CameraUpdate.newCameraPosition( CameraPosition(target: latLng, zoom: 16)),
+        CameraUpdate.newCameraPosition(CameraPosition(target: latLng, zoom: 16)),
       );
       return;
     }
@@ -482,6 +490,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
       'notes': _notesController.text.trim(),
     };
 
+    print('Confirming address: $addressData'); // Debug log
     context.pop(addressData);
   }
 
@@ -518,9 +527,8 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
             ),
             onMapCreated: (controller) {
               _mapController = controller;
-              if (widget.initialAddress != null) {
-                _updateMarker(_currentPosition);
-              }
+              // Initialize location after map is created
+              _initializeLocation();
             },
             markers: _markers,
             onTap: (position) async {

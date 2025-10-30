@@ -9,8 +9,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../auth/data/provider/auth_provider.dart';
 import '../../../cart/data/providers/cart_provider.dart';
 
-class HomeTabContent extends ConsumerWidget {
-  const HomeTabContent({super.key});
+class HomeScreen extends ConsumerWidget {
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -26,9 +26,7 @@ class HomeTabContent extends ConsumerWidget {
             children: [
               IconButton(
                 icon: const Icon(Icons.shopping_cart_outlined),
-                onPressed: () {
-                  context.push('/all-carts');
-                },
+                onPressed: () {context.push('/all-carts');},
               ),
               if (totalCarts > 0)
                 Positioned(
@@ -80,16 +78,12 @@ class HomeTabContent extends ConsumerWidget {
                 children: [
                   Text(
                     'Hello, ${user?.name?.split(' ').first ?? 'User'}! 👋',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'What service do you need today?',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.textSecondary,
-                        ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary),
                   ),
                   const SizedBox(height: 16),
                   TextField(
@@ -119,9 +113,7 @@ class HomeTabContent extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Text(
                 'Categories',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
               ),
             ),
             const SizedBox(height: 12),
