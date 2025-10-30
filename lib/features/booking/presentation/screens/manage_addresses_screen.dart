@@ -1,5 +1,3 @@
-// lib/features/booking/presentation/screens/manage_addresses_screen.dart
-
 import 'package:booking_app/features/booking/data/provider/saved_address_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,11 +15,17 @@ class ManageAddressesScreen extends ConsumerStatefulWidget {
 
 class _ManageAddressesScreenState extends ConsumerState<ManageAddressesScreen> {
   Future<void> _addNewAddress() async {
-    // Navigate to delivery address screen
-    final result = await context.push<Map<String, dynamic>>('/delivery-address');
+    // Navigate to delivery address screen in ADD mode
+    final result = await context.push<Map<String, dynamic>>(
+      '/delivery-address',
+      extra: {
+        'address': null,
+        'isEditMode': false,
+        'addressId': null,
+      },
+    );
     
     if (result != null && mounted) {
-      // Show dialog to save the address
       await _showSaveAddressDialog(result);
     }
   }
@@ -290,10 +294,14 @@ class _ManageAddressesScreenState extends ConsumerState<ManageAddressesScreen> {
     print('Editing address: ${address.label}');
     print('Current address data: ${address.toDeliveryAddress()}');
     
-    // Navigate to edit screen with address data
+    // Navigate to edit screen with address data and EDIT MODE flag
     final result = await context.push<Map<String, dynamic>>(
       '/delivery-address',
-      extra: address.toDeliveryAddress(),
+      extra: {
+        'address': address.toDeliveryAddress(),
+        'isEditMode': true,
+        'addressId': address.id,
+      },
     );
     
     print('Edit result: $result');

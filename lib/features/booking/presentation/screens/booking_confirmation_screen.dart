@@ -52,7 +52,11 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
   Future<void> _selectAddress() async {
     final result = await context.push<Map<String, dynamic>>(
       '/delivery-address',
-      extra: _selectedAddress,
+      extra: {
+        'address': _selectedAddress,
+        'isEditMode': false, // When selecting for booking, not editing saved address
+        'addressId': null,
+      },
     );
 
     if (result != null) {
@@ -60,8 +64,7 @@ class _BookingConfirmationScreenState extends ConsumerState<BookingConfirmationS
         _selectedAddress = result;
       });
     }
-  }
-
+} 
   void _proceedToCheckout() {
     if (!_formKey.currentState!.validate()) return;
 

@@ -165,13 +165,30 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       // Delivery Address Route
-      GoRoute(
-        path: '/delivery-address',
-        builder: (context, state) {
-          final initialAddress = state.extra as Map<String, dynamic>?;
-          return DeliveryAddressScreen(initialAddress: initialAddress);
-        },
-      ),
+      // GoRoute(
+      //   path: '/delivery-address',
+      //   builder: (context, state) {
+      //     final initialAddress = state.extra as Map<String, dynamic>?;
+      //     return DeliveryAddressScreen(initialAddress: initialAddress);
+      //   },
+      // ),
+
+  // Delivery Address Route - UPDATED
+        GoRoute(
+          path: '/delivery-address',
+          builder: (context, state) {
+            final extra = state.extra as Map<String, dynamic>?;
+            final initialAddress = extra?['address'] as Map<String, dynamic>?;
+            final isEditMode = extra?['isEditMode'] as bool? ?? false;
+            final addressId = extra?['addressId'] as String?;
+            
+            return DeliveryAddressScreen(
+              initialAddress: initialAddress,
+              isEditMode: isEditMode,
+              addressId: addressId,
+            );
+          },
+        ),
 
       // Manage Saved Addresses Route
       GoRoute(

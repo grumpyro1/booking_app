@@ -1,4 +1,3 @@
-// lib/features/booking/presentation/screens/delivery_address_screen.dart
 
 import 'package:booking_app/features/booking/data/provider/saved_address_provider.dart';
 import 'package:booking_app/features/booking/presentation/widgets/saved_addresses_panel.dart';
@@ -15,8 +14,15 @@ import '../../../auth/data/provider/auth_provider.dart';
 
 class DeliveryAddressScreen extends ConsumerStatefulWidget {
   final Map<String, dynamic>? initialAddress;
+  final bool isEditMode;
+  final String? addressId;
   
-  const DeliveryAddressScreen({super.key, this.initialAddress});
+  const DeliveryAddressScreen({
+    super.key, 
+    this.initialAddress,
+    this.isEditMode = false,
+    this.addressId,
+  });
 
   @override
   ConsumerState<DeliveryAddressScreen> createState() => _DeliveryAddressScreenState();
@@ -49,7 +55,6 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
   void initState() {
     super.initState();
     _searchFocusNode.addListener(_onSearchFocusChange);
-    // Don't initialize location here, wait for map to be created
   }
 
   @override
@@ -95,7 +100,6 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
         
         _updateMarker(_currentPosition);
         
-        // Move camera to this location
         _mapController?.animateCamera(
           CameraUpdate.newCameraPosition(
             CameraPosition(target: _currentPosition, zoom: 16),
@@ -105,30 +109,31 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
       }
     }
     
-    // Priority 2: Use default saved address
-    final defaultAddress = ref.read(savedAddressProvider.notifier).getDefaultAddress();
-    if (defaultAddress != null) {
-      final latLng = LatLng(defaultAddress.latitude, defaultAddress.longitude);
-      
-      setState(() {
-        _currentPosition = latLng;
-        _fullAddress = defaultAddress.fullAddress;
-        _street = defaultAddress.street;
-        _city = defaultAddress.city;
-        _postalCode = defaultAddress.postalCode;
-        _searchController.text = defaultAddress.fullAddress;
-        _houseNumberController.text = defaultAddress.houseNumber;
-        _notesController.text = defaultAddress.notes ?? '';
-        _hasSelectedLocation = true;
-      });
-      
-      _updateMarker(latLng);
-      
-      // Move camera to default address
-      _mapController?.animateCamera(
-        CameraUpdate.newCameraPosition(CameraPosition(target: latLng, zoom: 16)),
-      );
-      return;
+    // Priority 2: Use default saved address (only when NOT editing)
+    if (!widget.isEditMode) {
+      final defaultAddress = ref.read(savedAddressProvider.notifier).getDefaultAddress();
+      if (defaultAddress != null) {
+        final latLng = LatLng(defaultAddress.latitude, defaultAddress.longitude);
+        
+        setState(() {
+          _currentPosition = latLng;
+          _fullAddress = defaultAddress.fullAddress;
+          _street = defaultAddress.street;
+          _city = defaultAddress.city;
+          _postalCode = defaultAddress.postalCode;
+          _searchController.text = defaultAddress.fullAddress;
+          _houseNumberController.text = defaultAddress.houseNumber;
+          _notesController.text = defaultAddress.notes ?? '';
+          _hasSelectedLocation = true;
+        });
+        
+        _updateMarker(latLng);
+        
+        _mapController?.animateCamera(
+          CameraUpdate.newCameraPosition(CameraPosition(target: latLng, zoom: 16)),
+        );
+        return;
+      }
     }
     
     // Priority 3: Use current GPS location
@@ -350,7 +355,6 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
       return;
     }
 
-    // Check if address already saved
     final addressExists = ref.read(savedAddressProvider.notifier).addressExists(
           _currentPosition.latitude,
           _currentPosition.longitude,
@@ -490,7 +494,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
       'notes': _notesController.text.trim(),
     };
 
-    print('Confirming address: $addressData'); // Debug log
+    print('Confirming address: $addressData');
     context.pop(addressData);
   }
 
@@ -500,10 +504,10 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Delivery Address'),
+        title: Text(widget.isEditMode ? 'Edit Address' : 'Delivery Address'),
         elevation: 0,
         actions: [
-          if (savedAddresses.isNotEmpty)
+          if (savedAddresses.isNotEmpty && !widget.isEditMode)
             IconButton(
               icon: Icon(
                 _showSavedAddresses ? Icons.map : Icons.bookmark,
@@ -527,7 +531,6 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
             ),
             onMapCreated: (controller) {
               _mapController = controller;
-              // Initialize location after map is created
               _initializeLocation();
             },
             markers: _markers,
@@ -577,7 +580,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        savedAddresses.isNotEmpty
+                        savedAddresses.isNotEmpty && !widget.isEditMode
                             ? 'Tap on map or select a saved address'
                             : 'Tap anywhere on the map to pin your delivery location',
                         style: const TextStyle(
@@ -832,7 +835,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Delivery Location',
+                                  widget.isEditMode ? 'Update Location' : 'Delivery Location',
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleMedium
@@ -893,8 +896,8 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
 
                       const SizedBox(height: 24),
 
-                      // Save Address Button
-                      if (_hasSelectedLocation && _fullAddress.isNotEmpty)
+                      // Save Address Button - ONLY show when NOT editing
+                      if (_hasSelectedLocation && _fullAddress.isNotEmpty && !widget.isEditMode)
                         OutlinedButton.icon(
                           onPressed: _showSaveAddressDialog,
                           icon: const Icon(Icons.bookmark_add_outlined),
@@ -904,12 +907,12 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
                           ),
                         ),
 
-                      if (_hasSelectedLocation && _fullAddress.isNotEmpty)
+                      if (_hasSelectedLocation && _fullAddress.isNotEmpty && !widget.isEditMode)
                         const SizedBox(height: 12),
 
-                      // Confirm Button
+                      // Confirm/Update Button
                       ButtonWidget(
-                        label: 'Confirm Address',
+                        label: widget.isEditMode ? 'Update Address' : 'Confirm Address',
                         onPressed: _confirmAddress,
                       ),
                     ],
