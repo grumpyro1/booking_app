@@ -19,31 +19,36 @@ class DeliveryAddressScreen extends ConsumerStatefulWidget {
 }
 
 class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
-  GoogleMapController? _mapController;
+  GoogleMapController? _mapController; // controls the Google Map
+
+  // text boxes for user input
   final _searchController = TextEditingController();
   final _notesController = TextEditingController();
   final _houseNumberController = TextEditingController();
-  final _searchFocusNode = FocusNode();
+
+  final _searchFocusNode = FocusNode(); // to manage focus on search input
   
   LatLng _currentPosition = const LatLng(14.5547, 121.0244); // Default: Makati
   bool _isLoadingLocation = false;
   bool _isLoadingAddress = false;
   bool _isSearching = false;
+
+  // info from the selected place
   String _fullAddress = '';
   String _street = '';
   String _city = '';
   String _postalCode = '';
   
-  final Set<Marker> _markers = {};
+  final Set<Marker> _markers = {}; // shows pins on the map
   List<Location> _searchResults = [];
-  bool _showSearchResults = false;
-  bool _hasSelectedLocation = false;
+  bool _showSearchResults = false; // ist of search results when user types
+  bool _hasSelectedLocation = false; // whether user has selected a location
 
   @override
   void initState() {
     super.initState();
-    _initializeLocation();
-    _searchFocusNode.addListener(_onSearchFocusChange);
+    _initializeLocation(); // If there’s an initialAddress, show that on map. If not, get current GPS location (_getCurrentLocation)
+    _searchFocusNode.addListener(_onSearchFocusChange); // to hide results when focus is lost
   }
 
   @override
@@ -66,7 +71,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
     }
   }
 
-  Future<void> _initializeLocation() async {
+  Future<void> _initializeLocation() async { // decides whether to use the saved address or current location
     if (widget.initialAddress != null) {
       final lat = widget.initialAddress!['latitude'] as double?;
       final lng = widget.initialAddress!['longitude'] as double?;
@@ -87,7 +92,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
     await _getCurrentLocation();
   }
 
-  Future<void> _getCurrentLocation() async {
+  Future<void> _getCurrentLocation() async { // asks for location permission, gets user’s location, shows marker, and finds the address.
     setState(() => _isLoadingLocation = true);
 
     try {
@@ -132,7 +137,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
     }
   }
 
-  Future<void> _getAddressFromLatLng(LatLng position) async {
+  Future<void> _getAddressFromLatLng(LatLng position) async { // turns latitude/longitude into street, city, postal code
     try {
       final placemarks = await placemarkFromCoordinates(
         position.latitude,
@@ -164,11 +169,11 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
   }
 
   // Long press on map to select location
-  Future<void> _onMapLongPress(LatLng position) async {
+  Future<void> _onMapLongPress(LatLng position) async { // long press map = choose location.
     await _selectLocation(position);
   }
 
-  // Tap on marker to re-center
+  // Tap on marker to re-center camera
   void _onMarkerTap() {
     if (_markers.isNotEmpty) {
       final marker = _markers.first;
@@ -180,7 +185,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
     }
   }
 
-  Future<void> _selectLocation(LatLng position) async {
+  Future<void> _selectLocation(LatLng position) async { // updates marker and address when user picks a spot
     setState(() {
       _currentPosition = position;
       _isLoadingAddress = true;
@@ -193,7 +198,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
     setState(() => _isLoadingAddress = false);
   }
 
-  void _updateMarker(LatLng position) {
+  void _updateMarker(LatLng position) { // places or moves the marker on the map
     setState(() {
       _markers.clear();
       _markers.add(
@@ -211,7 +216,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
     });
   }
 
-  Future<void> _performSearch(String query) async {
+  Future<void> _performSearch(String query) async { // searches for locations based on user input
     if (query.isEmpty || query.length < 3) {
       setState(() {
         _searchResults = [];
@@ -241,7 +246,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
     }
   }
 
-  Future<void> _selectSearchResult(Location location) async {
+  Future<void> _selectSearchResult(Location location) async { //when user taps a search result, zoom map to it
     final latLng = LatLng(location.latitude, location.longitude);
 
     setState(() {
@@ -259,7 +264,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
     await _selectLocation(latLng);
   }
 
-  void _showError(String message) {
+  void _showError(String message) { // shows red message if something fails
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -268,7 +273,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
     );
   }
 
-  void _confirmAddress() {
+  void _confirmAddress() { // checks if user picked a location and sends the address data back.
     if (_fullAddress.isEmpty || !_hasSelectedLocation) {
       _showError('Please select a delivery address by tapping on the map');
       return;
@@ -298,7 +303,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
       body: Stack(
         children: [
           // Google Map
-          GoogleMap(
+          GoogleMap( // main map where user taps to pick location
             initialCameraPosition: CameraPosition(
               target: _currentPosition,
               zoom: 16,
@@ -622,10 +627,7 @@ class _DeliveryAddressScreenState extends ConsumerState<DeliveryAddressScreen> {
                                   style: Theme.of(context)
                                       .textTheme
                                       .bodySmall
-                                      ?.copyWith(
-                                        color: AppColors.textSecondary,
-                                        fontStyle: FontStyle.italic,
-                                      ),
+                                      ?.copyWith( color: AppColors.textSecondary, fontStyle: FontStyle.italic),
                                 ),
                             ],
                           ),
