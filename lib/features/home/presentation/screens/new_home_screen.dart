@@ -89,7 +89,7 @@ class HomeScreen extends ConsumerWidget {
                   TextField(
                     readOnly: true,
                     onTap: () {
-                      context.go('/home/search');
+                      context.go('/search');
                     },
                     decoration: InputDecoration(
                       hintText: 'Search service providers...',
@@ -182,7 +182,7 @@ class HomeScreen extends ConsumerWidget {
                   ),
                   TextButton(
                     onPressed: () {
-                      context.go('/home/search');
+                      context.go('/search');
                     },
                     child: const Text('See All'),
                   ),
